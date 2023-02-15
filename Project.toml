@@ -1,0 +1,37 @@
+name = "Karmana"
+uuid = "effa76d7-9abc-4e26-83a5-bd5454997a32"
+authors = ["xKDR Forum", "Anshul Singhvi <anshulsinghvi@gmail.com>", "and contributors"]
+version = "0.1.0"
+
+[deps]
+ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DBInterface = "a10d1c49-ce27-4219-8d33-6db1a4562965"
+DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
+GeoInterfaceMakie = "0edc0954-3250-4c18-859d-ec71c1660c08"
+GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
+GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+Ghostscript_jll = "61579ee1-b43e-5ca0-a5da-69d92c66a64b"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+MakieCore = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
+NaNMath = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
+Polylabel = "49a44318-e865-4b63-9842-695152d634c1"
+Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
+QRCode = "6cfbe66a-a49d-11e9-1842-750d329cfcbb"
+Rasters = "a3a2b9e3-a471-40c9-b274-f788e487c689"
+Shapefile = "8e980c4a-a4fe-5da2-b3a7-4b4b0353a2f4"
+TernaryDiagrams = "54198458-1476-45ac-9e44-88a4201bfea6"
+
+[compat]
+julia = "1.5"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
