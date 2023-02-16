@@ -29,6 +29,7 @@ Shapefile = "8e980c4a-a4fe-5da2-b3a7-4b4b0353a2f4"
 TernaryDiagrams = "54198458-1476-45ac-9e44-88a4201bfea6"
 
 [compat]
+DBInterface = "2"
 julia = "1.5"
 
 [extras]
