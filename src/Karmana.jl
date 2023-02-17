@@ -85,8 +85,8 @@ function __init__()
     try
         _state_df, _hr_df, _district_df = state_hr_district_dfs()
 
-        _district_df[302, :hr_nmbr] = 3 # Kinnaur - district name not assigned HR_Name
-        _district_df[413, :hr_nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
+        # _district_df[302, :hr_nmbr] = 3 # Kinnaur - district name not assigned HR_Name
+        # _district_df[413, :hr_nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
         state_df[] = _state_df
         hr_df[] = _hr_df
         district_df[] = _district_df
@@ -117,7 +117,7 @@ function __init__()
             There is otherwise no disruption to Karmana.jl's functionality.
 
             The thrown exception is below:
-            
+
             """)
 
             show(ex)
@@ -139,7 +139,7 @@ function __init__()
             if !isfile(world_rivers_path)
                 @warn "Rivers not found or environment variable not provided.  Downloading directly from UNESCO.]"
                 # TODO: let this download from
-                river_zipfile = download("http://ihp-wins.unesco.org/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typename=geonode%3Aworld_rivers&outputFormat=SHAPE-ZIP&srs=EPSG%3A4326&format_options=charset%3AUTF-8")
+                river_zipfile = Downloads.download("http://ihp-wins.unesco.org/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typename=geonode%3Aworld_rivers&outputFormat=SHAPE-ZIP&srs=EPSG%3A4326&format_options=charset%3AUTF-8")
                 temppath = mktempdir()
                 run(pipeline(`$(p7zip_jll.p7zip()) e $river_zipfile -o$temppath -y `, stdout = devnull, stderr = devnull))
                 world_rivers_path = joinpath(temppath, "world_rivers.shp")
