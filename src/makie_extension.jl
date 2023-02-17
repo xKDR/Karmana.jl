@@ -92,9 +92,49 @@ function move!(position::Makie.GridPosition, layout::GridLayout; remove_scenes_f
                 Makie.connect!(getfield(new_figure.scene.events, field), getfield(block.blockscene.events, field))
             end
         end
+        set_scene_fields!(
+            block.blockscene; 
+            current_screens = new_figure.scene.current_screens, 
+        )
     end
 
     return position
 end
 
+function set_scene_fields!(scene; fields...)
+    for (field, value) in fields
+        setfield!(scene, field, value)
+    end
+    for child_scene in scene.children
+        set_scene_fields!(child_scene; fields...)
+    end
+end
+
 move!(position::Makie.GridPosition, figure::Figure; remove_scenes_from_old_figure = true) = move!(position, figure.layout; remove_scenes_from_old_figure)
+
+# fig1 = Figure(resolution = (1500, 1500));
+# fig2 = Figure();
+
+# gl1 = GridLayout(fig1[1, 1])
+# gl2 = GridLayout(fig1[1, 2])
+
+# for gl in (gl1, gl2)
+#     lines(gl[1, 1], rand(10))
+#     scatter(gl[1, 2], rand(10))
+#     heatmap(gl[2, 1], rand(100, 100))
+#     surface(gl[2, 2], Makie.peaks())
+# end
+
+# display(GLMakie.Screen(title = "fig1"), fig1)
+# display(GLMakie.Screen(title = "fig2"), fig2)
+# move!(fig2[1, 1], gl1)
+# display(GLMakie.Screen(title = "fig2 after move"), fig2)
+
+# using GLMakie
+
+
+
+
+# fig1
+
+# fig2
