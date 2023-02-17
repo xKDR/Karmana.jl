@@ -118,11 +118,11 @@ function theme_a1()
 end
 
 """
-    nearest_paper_size((width::Real, height::Real))::Symbol
+    nearest_paper_size(width::Real, height::Real)::Symbol
 
 Returns the closest paper size to the provided size, which must be a 2-tuple.
 """
-function nearest_paper_size((width::Real, height::Real))::Symbol
+function nearest_paper_size(width::Real, height::Real)::Symbol
 
 end
 
