@@ -26,7 +26,12 @@ function merge_polys(polys::AbstractVector)
 
     converted = GeoInterface.convert(GeometryBasics, GeoMakie.geo2basic(master_poly))
     if converted isa GeometryBasics.Polygon
-        return GeometryBasics.Multi
+        return GeometryBasics.MultiPolygon([converted])
+    elseif converted isa GeometryBasics.MultiPolygon
+        return converted
+    else
+        @error "Unexpected type $(show(typeof(converted); compact = true)) received from conversion to GeometryBasics type - expected Polygon or MultiPolygon."
+    end
 end
 
 
