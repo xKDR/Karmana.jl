@@ -115,7 +115,13 @@ function __init__()
             This will allow you to use `indiaoutline`.   In future, set the environment variable "KARMANA_DISRICT_SHAPEFILE" to this path.
 
             There is otherwise no disruption to Karmana.jl's functionality.
+
+            The thrown exception is below:
+            
             """)
+
+            show(ex)
+
             return
         end
     finally
