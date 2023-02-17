@@ -107,8 +107,12 @@ end
 Creates a figure of the specified size with the specified arguments, themed for XKDR.  Applies the appropriate paper size theme (`theme_a4`, `theme_a3`, etc.)
 
 ### Arguments
+- `paper_size`: A symbol representing the desired paper size; can be `:a[1/2/3/4]`.  More planned.  In the future, you may also be able to pass a tuple.
+- `qr_code_link`: The contents of the QR code shown at the bottom left of the page.
 
 ### Keyword arguments
+- `landscape = automatic`: Decides whether the figure should be in landscape or portrait mode.  If `automatic`, decides automatically.  To set this manually, set `landscape = true` or `landscape = false`.
+- `naxes = 1`: The number of axes to create in the central grid.  Automatically laid out.  
 
 ### Returns
 
@@ -158,7 +162,7 @@ function create_page(
     with_theme(theme) do
 
         # Get the Figure's background color, then check it 
-        bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(0,0,0))))
+        bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
         # convert the background color to HSL, then check luminance.
         if HSL(bg_color).l ≥ 0.4 # light theme
             xkdr_logo_image = rotr90(FileIO.load(abspath(joinpath(dirname(dirname(@__DIR__)), "DATA", "XKDR_LOGO", "XKDR_Logomark_RGB_Full_Colour.png"))))

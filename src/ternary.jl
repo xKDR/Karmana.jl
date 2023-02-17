@@ -1,12 +1,3 @@
-
-# to re-generate the colormaps, do the following:
-
-const _Rmap_default = Ref{Vector{RGBf}}(RGBf[])
-const _Gmap_default = Ref{Vector{RGBf}}(RGBf[])
-const _Bmap_default = Ref{Vector{RGBf}}(RGBf[])
-
-using Makie: Colors, PlotUtils
-
 """
     mutable struct TernaryColormap
 
