@@ -23,7 +23,7 @@ using DataDeps, DataFrames
 using QRCode, Ghostscript_jll
 using DataStructures, NaNMath
 using DBInterface, MySQL
-using Scratch
+using Scratch, p7zip_jll
 # standard libraries
 using LinearAlgebra, Dates, Downloads, DelimitedFiles
 
@@ -131,8 +131,12 @@ function __init__()
             @info "India's rivers were not cached, so we are regenerating them.  This may take a minute or so.  Only on first run!"
             world_rivers_path = get(ENV, "KARMANA_RIVER_SHAPEFILE", joinpath(dirname(dirname(dirname(@__DIR__))), "code", "maps", "DATA", "INDIA_SHAPEFILES", "World_Rivers", "world_rivers.shp"))
             if !isfile(world_rivers_path)
-                @warn "Rivers will not be populated!  Set the environment variable \"KARMANA_RIVER_SHAPEFILE\" to point to the correct world rivers shapefile."
-                return
+                @warn "Rivers not found or environment variable not provided.  Downloading directly from UNESCO.]"
+                # TODO: let this download from
+                river_zipfile = download("http://ihp-wins.unesco.org/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typename=geonode%3Aworld_rivers&outputFormat=SHAPE-ZIP&srs=EPSG%3A4326&format_options=charset%3AUTF-8")
+                temppath = mktempdir()
+                run(pipeline(`$(p7zip_jll.p7zip()) e $river_zipfile -o$temppath -y `, stdout = devnull, stderr = devnull))
+                world_rivers_path = joinpath(temppath, "world_rivers.shp")
             end
             # perform the operation
             india_rivers[] = prepare_merged_river_geom(
