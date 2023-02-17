@@ -1,6 +1,3 @@
-using DBInterface, MySQL
-
-
 # Deltares World Flood dataset
 function deltares_url(year::Int; dem_source = "NASADEM", return_period = "0100")
     root = (
