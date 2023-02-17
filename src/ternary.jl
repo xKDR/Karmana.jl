@@ -48,13 +48,13 @@ function (cmap::TernaryColormap)(x, y, z)
     )
 end
 
-(cmap::TernaryColormap)(point::Makie.VecTypes{3}) = cmap(point...)
 
 function (cmap::TernaryColormap)(point::AbstractVector{<: Real})
     @assert length(point) == 3 "You must pass a length 3 vector to obtain a color from a ternary colormap.  The vector passed in had length $(length(point))."
     return cmap(point...)
 end
 
+(cmap::TernaryColormap)(point::Makie.VecTypes{3}) = cmap(point...)
 
 # Quick visualization utilities, so you can see your colormap !
 Makie.plottype(::TernaryColormap) = Makie.Image

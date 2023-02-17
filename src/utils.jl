@@ -105,27 +105,3 @@ function resample_file(file, to_raster::Rasters.AbstractRaster, crop_geom)
     original_bounds = bounds(raster)
     return Rasters.crop(resampled_raster, to=GeoInterface.Extents.Extent(X = original_bounds[1], Y = original_bounds[2]))
 end
-
-
-# 
-# Taken from Plots.jl
-function compute_gridsize(numplts::Int; landscape = false, nr = -1, nc = -1)
-    # figure out how many rows/columns we need
-    if nr < 1
-        if nc < 1
-            nr = round(Int, sqrt(numplts))
-            nc = ceil(Int, numplts / nr)
-        else
-            nr = ceil(Int, numplts / nc)
-        end
-    else
-        nc = ceil(Int, numplts / nr)
-    end
-    if landscape
-        return min(nr, nc), max(nr, nc)
-    else
-        return max(nr, nc), min(nr, nc)
-    end
-end
-
-compute_gridsize((nr, nc); landscape = false) = compute_gridsize(nr * nc; landscape, nr, nc)
