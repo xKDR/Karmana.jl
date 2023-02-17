@@ -1,4 +1,7 @@
 
+Base.convert(::Type{GeometryBasics.MultiPolygon}, poly::GeometryBasics.Polygon) = GeometryBasics.MultiPolygon([poly])
+Base.convert(::Type{GeometryBasics.MultiPolygon}, multipoly::GeometryBasics.MultiPolygon) = multipoly
+
 """
     merge_polys(polys::AbstractVector{<: Union{Polygon, MultiPolygon}})
 

@@ -15,13 +15,15 @@ using GeoInterface, Proj
 # raster loading
 using Rasters
 # feature/vector geometry
-using Shapefile, ArchGDAL
+using Shapefile, ArchGDAL, WellKnownGeometry
+using GeoFormatTypes
 using Polylabel
 # utility packages
 using DataDeps, DataFrames
 using QRCode, Ghostscript_jll
 using DataStructures, NaNMath
-using DBInterface, MySQL, HTTP
+using DBInterface, MySQL
+using Scratch
 # standard libraries
 using LinearAlgebra, Dates, Downloads, DelimitedFiles
 
@@ -65,7 +67,7 @@ Contains the District dataframe
 """
 const district_df = Ref{DataFrame}()
 
-const india_rivers = Ref{GeometryBasics.MultiLineString}()
+const india_rivers = Ref{ArchGDAL.IGeometry}()
 
 """
     Karmana.__init__()
@@ -93,12 +95,12 @@ function __init__()
         contingency_shapefile_path = get(ENV, "KARMANA_DISTRICT_SHAPEFILE", joinpath(dirname(dirname(dirname(@__DIR__))), "code", "maps", "DATA", "INDIA_SHAPEFILES", "Districts_States_HR", "2011_Districts_State_HR.shp"))
         if isfile(contingency_shapefile_path)
             district_df[] = DataFrame(Shapefile.Table(contingency_shapefile_path))
-            district_df.geometry = GeoMakie.geo2basic.(district_df.geometry)
+            district_df[].geometry = GeoMakie.geo2basic.(district_df[].geometry)
             # apply certain patches here
-            district_df[302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
-            district_df[413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
-            hr_df[] = _prepare_merged_geom_dataframe(district_df, :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name))
-            state_df[] = _prepare_merged_geom_dataframe(district_df, :ST_NM; capture_fields = (:ST_CD,))
+            district_df[][302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
+            district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
+            hr_df[] = _prepare_merged_geom_dataframe(district_df[], :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name))
+            state_df[] = _prepare_merged_geom_dataframe(district_df[], :ST_NM; capture_fields = (:ST_CD,))
             has_india_data = true
         else # no contingency shapefile detected
             printstyled("Error when trying to connect to the `maps` database at data.mayin.org!"; color = :red, bold = true)
@@ -120,7 +122,7 @@ function __init__()
     end
 
     # get rivers
-    if have_india_data
+    if has_india_data
         # Since taking the intersection of all rivers with India is so expensive, we cache it as well-known-binary in a scratchspace.
         scratchspace = Scratch.@get_scratch!("india_rivers")
         cached_rivers_file = joinpath(scratchspace, "india_rivers.bin")
