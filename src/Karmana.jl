@@ -139,10 +139,9 @@ function __init__()
                 world_rivers_path,
                 merge_polys(state_df[].geometry)
             )
-            # write WKB to the cache file
-            write(cached_rivers_file, "w") do f
-                write(f, GeoFormatTypes.val(WellKnownGeometry.getwkb(india_rivers[])))
-            end
+
+            # save this in well-known-binary form to the cache file.
+            write(cached_rivers_file, GeoFormatTypes.val(WellKnownGeometry.getwkb(india_rivers[])))
         else # we have the cache, so can write to it.
             india_rivers[] = ArchGDAL.fromWKB(read(cached_rivers_file))
         end
