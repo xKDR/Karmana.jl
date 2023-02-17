@@ -1,3 +1,25 @@
+# Save and recover colormaps
+
+function cgrad_to_csv(csvfile::AbstractString, cgrad::PlotUtils.ColorGradient)
+    values = cgrad.values
+    colors = cgrad.colors.colors
+
+    reds = Colors.red.(colors)
+    greens = Colors.green.(colors)
+    blues = Colors.blue.(colors)
+    alphas = Colors.alpha.(colors)
+    
+    csv_matrix = hcat(values, reds, greens, blues, alphas)
+    csv_matrix_with_headers = vcat(["Value" "Red" "Green" "Blue" "Alpha"], csv_matrix)
+
+    DelimitedFiles.writedlm(csvfile, csv_matrix_with_headers, ',')
+end
+
+function csv_to_cgrad(csvfile::AbstractString)
+    data_cells, header_cells = DelimitedFiles.readdlm(csvfile, ',', Float64, '\n'; header = true)
+    return PlotUtils.cgrad(RGBAf.(data_cells[:, 2], data_cells[:, 3], data_cells[:, 4]), data_cells[:, 1])
+end
+
 
 # Postprocessing utils for printing
 
