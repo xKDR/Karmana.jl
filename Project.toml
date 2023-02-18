@@ -53,6 +53,7 @@ QRCode = "0.2"
 Rasters = "0.5"
 Scratch = "1"
 Shapefile = "0.9"
+TernaryDiagrams = "0.1"
 julia = "1.6"
 
 [extras]
