@@ -50,6 +50,7 @@ Proj = "1"
 QRCode = "0.2"
 Rasters = "0.5"
 Shapefile = "0.9"
+WellKnownGeometry = "0.2"
 julia = "1.6"
 
 [extras]
