@@ -32,18 +32,21 @@ assetpath(args::AbstractString...) = abspath(dirname(@__DIR__), "assets", args..
 include("utils.jl")
 include("geom_utils.jl")
 
-include("data.jl")
-export deltares_url
-
 include("themes.jl")
 export theme_xkdr, theme_a1, theme_a2, theme_a3, theme_a4, paper_size_theme
 
 include("poster_page.jl")
-export create_page
-
+export create_page, prepare_page
 
 include("ternary.jl")
 export TernaryColormap
+
+# the below code is mostly stuff internal to xKDR
+include("data.jl")
+export deltares_url
+
+include("indiaoutline.jl")
+export indiaoutline, indiaoutline!, IndiaOutline
 
 
 """
@@ -67,6 +70,12 @@ Contains the District dataframe
 """
 const district_df = Ref{DataFrame}()
 
+"""
+    india_rivers[]::ArchGDAL.IGeometry
+
+Contains an ArchGDAL geometry which contains a multilinestring of
+the intersection of the world's rivers with India.
+"""
 const india_rivers = Ref{ArchGDAL.IGeometry}()
 
 """
@@ -101,6 +110,13 @@ function __init__()
             district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
             hr_df[] = _prepare_merged_geom_dataframe(district_df[], :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name))
             state_df[] = _prepare_merged_geom_dataframe(district_df[], :ST_NM; capture_fields = (:ST_CD,))
+
+            # finally, patch the loaded dataframes, to match the maps database
+
+            rename!(state_df[], [:ST_NM => :st_nm, :ST_CD => :st_cen_cd])
+            rename!(hr_df[], [:ST_NM => :st_nm, :ST_CD => :st_cen_cd, :HR_Name => :hr_name, :HR_Nmbr => :hr_nmbr]) # TODO: no hr_nmbr in data.mayin.org?
+            hr_df[].hr_nmbr_str = ("HR ",) .* string.(hr_df[].hr_nmbr)
+            rename!(district_df[], [:ST_NM => :st_nm, :ST_CD => :st_cen_cd, :HR_Name => :hr_name, :HR_Nmbr => :hr_nmbr, :DISTRCT => :district, :DT_CD => :dt_cen_cd, :CEN_CD => :censuscode])
             has_india_data = true
         else # no contingency shapefile detected
             printstyled("Error when trying to connect to the `maps` database at data.mayin.org!"; color = :red, bold = true)

@@ -4,7 +4,7 @@ function prepare_page(
         qr_code_contents::String;
         landscape = false,
         padding = 3,
-        logo = rotr90(FileIO.load(abspath(joinpath(dirname(dirname(dirname(@__FILE__))), "DATA", "XKDR_LOGO", "XKDR_Logomark_RGB_White.jpg")))),
+        logo = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_White.jpg"))),
         logo_height = 40,
         logo_padding = 5,
         qr_code_height = 60,
@@ -163,12 +163,13 @@ function create_page(
 
         # Get the Figure's background color, then check it 
         bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
+        @show bg_color HSL(bg_color).l
         # convert the background color to HSL, then check luminance.
-        if HSL(bg_color).l ≥ 0.4 # light theme
-            xkdr_logo_image = rotr90(FileIO.load(abspath(joinpath(dirname(dirname(@__DIR__)), "DATA", "XKDR_LOGO", "XKDR_Logomark_RGB_Full_Colour.png"))))
+        if HSL(bg_color).l ≥ 0.4 || alpha(bg_color) ≤ 0.3# light theme
+            xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_Full_Colour.png")))
             qr_code_colormap = [colorant"black", colorant"white"]
         else # dark theme
-            xkdr_logo_image = rotr90(FileIO.load(abspath(joinpath(dirname(dirname(@__DIR__)), "DATA", "XKDR_LOGO", "XKDR_Logomark_White_Coral.png"))))
+            xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_White_Coral.png")))
             qr_code_colormap = Makie.to_color.([colorant"white", bg_color])
         end
 
