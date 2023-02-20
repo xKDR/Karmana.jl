@@ -110,7 +110,8 @@ $(Makie.ATTRIBUTES)
         highclip = false,
         lowclip = false,
         crop_to_data = false,
-        merge_key_column = Makie.automatic
+        merge_column = Makie.automatic,
+        external_merge_column = Makie.automatic,
     )
 
 end
@@ -140,23 +141,26 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.HR.zlevel[] = plot.State.zlevel[] + 3
         # plot.District.zlevel[] = plot.State.zlevel[] + 2
         # plot.River.zlevel[] = plot.State.zlevel[] + 1
+
+        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
+        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
+        
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
 
-        merge_key = plot.merge_key_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_key_column[]
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
             # create a dataframe with the inputs which we can use to merge
-            df_to_merge = DataFrame(merge_key => ids, value_colname => vals; copycols = false)
+            df_to_merge = DataFrame(merge_column => ids, value_colname => vals; copycols = false)
             # do we crop India or not?
             merge_method = crop ? DataFrames.innerjoin : DataFrames.outerjoin
             
-            merged_df = merge_method(Karmana.state_df[], df_to_merge; on = merge_key, matchmissing = :equal)
+            merged_df = merge_method(Karmana.state_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             state_geoms[] = merged_df.geometry
             state_colors[] = map(x -> ismissing(x) ? nan_color : x, merged_df[!, value_colname])
-            merge_codes = unique(merged_df[!, merge_key])
-            hr_geoms.val = filter(merge_key => Base.Fix2(_missing_in, merge_codes), Karmana.hr_df[]; view = false)[:, :geometry]
+            merge_codes = unique(merged_df[!, plot.external_merge_column[]])
+            hr_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.hr_df[]; view = false)[:, :geometry]
             hr_colors.val = fill(NaN, length(hr_geoms.val))
             notify(hr_geoms); notify(hr_colors)
-            district_geoms.val = filter(merge_key => Base.Fix2(_missing_in, merge_codes), Karmana.district_df[]; view = false)[:, :geometry]
+            district_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.district_df[]; view = false)[:, :geometry]
             district_colors.val = fill(NaN, length(district_geoms.val))
             notify(district_geoms); notify(district_colors)
         end
@@ -165,28 +169,30 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.State.zlevel[] = plot.HR.zlevel[] + 3
         # plot.District.zlevel[] = plot.HR.zlevel[] + 2
         # plot.River.zlevel[] = plot.HR.zlevel[] + 1
-        merge_key = plot.merge_key_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_key_column[]
+        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
+        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
+
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
 
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
             # create a dataframe with the inputs which we can use to merge
-            df_to_merge = DataFrame(merge_key => ids, value_colname => vals; copycols = false)
+            df_to_merge = DataFrame(merge_column => ids, value_colname => vals; copycols = false)
             # do we crop India or not?
             merge_method = crop ? DataFrames.innerjoin : DataFrames.outerjoin
             # merge the dataframes using the given method
-            merged_df = merge_method(Karmana.hr_df[], df_to_merge; on = merge_key, matchmissing = :equal)
+            merged_df = merge_method(Karmana.hr_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             # update all other Observables(geoms, colors, etc)
             hr_geoms.val = merged_df.geometry
             hr_colors.val = map(x -> ismissing(x) ? nan_color : (x), merged_df[!, value_colname])
             notify(hr_geoms); notify(hr_colors)
 
-            merge_codes = unique(merged_df[!, merge_key])
-            state_codes = unique(merged_df[!, :ST_NM])
+            merge_codes = unique(merged_df[!, external_merge_column])
+            state_codes = unique(merged_df[!, :st_nm])
 
-            state_geoms.val = filter(:ST_NM => Base.Fix2(_missing_in, state_codes), Karmana.state_df[]; view = true)[!, :geometry]
+            state_geoms.val = filter(:st_nm => Base.Fix2(_missing_in, state_codes), Karmana.state_df[]; view = true)[!, :geometry]
             state_colors.val = fill(NaN, length(state_geoms.val))
             notify(state_geoms); notify(state_colors)
-            district_geoms.val = filter(merge_key => Base.Fix2(_missing_in, merge_codes), Karmana.district_df[]; view = true)[!, :geometry]
+            district_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.district_df[]; view = true)[!, :geometry]
             district_colors.val = fill(NaN, length(district_geoms.val))
             notify(district_geoms); notify(district_colors)
         end
@@ -195,26 +201,28 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.State.zlevel[] = plot.District.zlevel[] + 3
         # plot.HR.zlevel[] = plot.District.zlevel[] + 2
         # plot.River.zlevel[] = plot.District.zlevel[] + 1
+        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
+        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
+
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
-        merge_key = plot.merge_key_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_key_column[]
 
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
             # create a dataframe with the inputs which we can use to merge
-            df_to_merge = DataFrame(merge_key => ids, value_colname => vals; copycols = false)
+            df_to_merge = DataFrame(merge_column => ids, value_colname => vals; copycols = false)
             # do we crop India or not?
             merge_method = crop ? DataFrames.innerjoin : DataFrames.outerjoin
             
-            merged_df = merge_method(Karmana.district_df[], df_to_merge; on = merge_key, matchmissing = :equal)
+            merged_df = merge_method(Karmana.district_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             district_geoms[] = merged_df.geometry
             district_colors[] = map(x -> ismissing(x) ? nan_color : (x), merged_df[!, value_colname])
 
-            state_codes = unique(merged_df[!, :ST_NM])
-            hr_codes = unique(merged_df[!, :HR_Nmbr])
-            state_geoms.val = filter(:ST_NM => Base.Fix2(_missing_in, state_codes), Karmana.state_df[]; view = true)[:, :geometry]
+            state_codes = unique(merged_df[!, :st_nm])
+            hr_codes = unique(merged_df[!, :hr_nmbr])
+            state_geoms.val = filter(:st_nm => Base.Fix2(_missing_in, state_codes), Karmana.state_df[]; view = true)[:, :geometry]
             state_colors.val = fill(NaN, length(state_geoms.val))
             notify(state_geoms); notify(state_colors)
 
-            hr_geoms.val = filter(:HR_Nmbr => Base.Fix2(_missing_in, hr_codes), Karmana.hr_df[]; view = true)[:, :geometry]
+            hr_geoms.val = filter(:hr_nmbr => Base.Fix2(_missing_in, hr_codes), Karmana.hr_df[]; view = true)[:, :geometry]
             hr_colors.val = fill(NaN, length(hr_geoms.val))
             notify(hr_geoms); notify(hr_colors)
 
