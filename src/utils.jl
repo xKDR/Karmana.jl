@@ -105,3 +105,18 @@ function resample_file(file, to_raster::Rasters.AbstractRaster, crop_geom)
     original_bounds = bounds(raster)
     return Rasters.crop(resampled_raster, to=GeoInterface.Extents.Extent(X = original_bounds[1], Y = original_bounds[2]))
 end
+
+
+# data munging utilities for the CPHS database
+
+"""
+    get_HR_number(hr::Union{String, Missing})::Union{Int, Missing}
+
+Extracts the number from a string of a form `"HR ???"` and returns it.
+If the input is `missing`, then `missing` is returned.
+"""
+function get_HR_number(hr::String)
+    return parse(Int, hr[(findfirst(' ', hr)+1):end])
+end
+
+get_HR_number(::Missing) = missing
