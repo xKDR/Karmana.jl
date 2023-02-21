@@ -91,7 +91,7 @@ function compute_gridsize(numplts::Int; landscape = false, nr = -1, nc = -1)
     end
 end
 
-compute_gridsize((nr, nc); landscape = false) = compute_gridsize(nr * nc; landscape, nr, nc)
+compute_gridsize((nr, nc); landscape = false) = (nr, nc)
 
 
 
