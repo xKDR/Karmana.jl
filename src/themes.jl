@@ -114,7 +114,25 @@ function theme_a2()
     )
 end
 
-function theme_a1()
+function theme_a0()
+    return Attributes(
+        Page = (
+            logo_height = 60,
+            logo_padding = 0,
+            qr_code_height = 72,
+            qr_code_padding = 0,
+        ),
+        Supertitle = (
+            fontsize = 80,
+        ),
+        DescriptionLabel = (
+            fontsize = 30,
+        ),
+        Axis = (
+            titlesize = 350,
+        ),
+        fontsize = 20,
+    )
 end
 
 """
@@ -135,6 +153,8 @@ function paper_size_theme(paper_size::Symbol)
         theme_a2()
     elseif paper_size == :a1
         theme_a1()
+    elseif paper_size == :a0
+        theme_a0()
     else
         @warn("Paper size `$paper_size` is not known!  Defaulting to `:a4`.")
         theme_a4()
@@ -147,9 +167,7 @@ function _best_padding(paper_size::Symbol)
         5
     elseif paper_size === :a3
         72
-    elseif paper_size === :a2
-        80
-    elseif paper_size == :a1
+    elseif paper_size in (:a2, :a1, :a0)
         80
     else
         @warn("Paper size `$paper_size` is not known!  Defaulting to `:a4`.")
