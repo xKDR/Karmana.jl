@@ -167,7 +167,6 @@ function create_page(
 
         # Get the Figure's background color, then check it 
         bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
-        @show bg_color HSL(bg_color).l
         # convert the background color to HSL, then check luminance.
         if HSL(bg_color).l ≥ 0.4 || alpha(bg_color) ≤ 0.3# light theme
             xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_Full_Colour.png")))

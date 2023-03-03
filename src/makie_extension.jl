@@ -1,20 +1,59 @@
 # Basic converts for e.g. Rasters
 # TODO: remove after the Rasters PR is merged.
-function Makie.convert_arguments(::Makie.ContinuousSurface, raw_raster::AbstractRaster{<: Real, 2})
-    ds = Rasters.DimensionalData._fwdorderdims(raw_raster)
-    A = permutedims(raw_raster, ds)
+    
+# First, define default plot types for Rasters
+MakieCore.plottype(::AbstractRaster{<: Real, 1}) = MakieCore.Lines
+MakieCore.plottype(::AbstractRaster{<: Real, 2}) = MakieCore.Heatmap
+
+
+missing_or_float32(num::Number) = Float32(num)
+missing_or_float32(::Missing) = missing
+
+# then, define how they are to be converted to plottable data
+function MakieCore.convert_arguments(::MakieCore.PointBased, raw_raster::AbstractRaster{<: Union{Missing, Real}, 1})
+    z = map(Rasters._prepare, dims(raw_raster))
+    return (parent(Float32.(replace_missing(missing_or_float32.(raw_raster), missingval = NaN32))), index(z))
+end
+    
+
+function MakieCore.convert_arguments(::MakieCore.ContinuousSurface, raw_raster::AbstractRaster{<: Union{Missing, Real}, 2})
+    raster = replace_missing(missing_or_float32.(raw_raster), missingval = NaN32)
+    ds = DD._fwdorderdims(raster)
+    A = permutedims(raster, ds)
     x, y = dims(A)
-    xs, ys, zs = Rasters.DimensionalData._withaxes(x, y, (A))
-    return (xs, ys, collect(zs))
+    xs, ys, zs = DD._withaxes(x, y, (A))
+    return (xs, ys, zs)
 end
 
-function Makie.convert_arguments(::Makie.DiscreteSurface, raw_raster::AbstractRaster{<: Real, 2})
-    ds = Rasters.DimensionalData._fwdorderdims(raw_raster)
-    A = permutedims(raw_raster, ds)
+function MakieCore.convert_arguments(::MakieCore.DiscreteSurface, raw_raster::AbstractRaster{<: Union{Missing, Real}, 2})
+    raster = replace_missing(missing_or_float32.(raw_raster), missingval = NaN32)
+    ds = DD._fwdorderdims(raster)
+    A = permutedims(raster, ds)
     x, y = dims(A)
-    xs, ys, zs = Rasters.DimensionalData._withaxes(x, y, (A))
-    return (xs, ys, collect(zs))
+    xs, ys, zs = DD._withaxes(x, y, (A))
+    return (xs, ys, zs)
 end
+
+# allow plotting 3d rasters with singleton third dimension (basically 2d rasters)
+function MakieCore.convert_arguments(::MakieCore.SurfaceLike, raw_raster_with_missings::AbstractRaster{<: Union{Real, Missing}, 3})
+    @assert size(raw_raster, 3) == 1
+    return (raw_raster_with_missings[Band(1)],)
+end
+            
+# fallbacks with descriptive error messages
+MakieCore.convert_arguments(::MakieCore.SurfaceLike, ::AbstractRaster{<: Real, Dim}) = @error """
+            We don't currently support plotting Rasters of dimension $Dim in Makie.jl. in surface/heatmap-like plots.
+            
+            In order to plot, please provide a 2-dimensional slice of your raster.
+            For example, in a 3-dimensional raster, this would look like:
+            ```julia
+            myraster = Raster(...)
+            heatmap(myraster)          # errors
+            heatmap(myraster[:, :, 1]) # use some index to subset, this works!
+            ```
+            """
+            
+
 
 # A way to compose Makie figures together
 # TODO: upstream this
@@ -78,9 +117,23 @@ function move!(position::Makie.GridPosition, layout::GridLayout; remove_scenes_f
 
     # move the Blocks' blockscenes to the new figure
     for block in get_all_blocks(layout)
+
+        # old_screens = block.blockscene.current_screens
+        # new_screens = new_figure.scene.current_screens
+        # foreach_scene(block.blockscene) do scene
+        #     Makie.disconnect_screen.((scene,), old_screens)
+        #     # for screen in new_screens
+        #     #     try
+        #     #         Makie.connect_screen(scene, screen)
+        #     #     catch
+        #     #     end
+        #     # end
+        # end
+
         # push the blockscene of each block to the new figure
         push!(new_figure.scene.children, block.blockscene)
         block.blockscene.parent = new_figure.scene
+        Makie.push_screen!.((block.blockscene,), new_figure.scene.current_screens)
         # optionally, remove the scenes from the old figure
         if remove_scenes_from_old_figure
             deleteat!(old_figure.scene.children, findfirst(x -> x === block.blockscene, old_figure.scene.children))
@@ -92,16 +145,18 @@ function move!(position::Makie.GridPosition, layout::GridLayout; remove_scenes_f
                 Makie.connect!(getfield(new_figure.scene.events, field), getfield(block.blockscene.events, field))
             end
         end
-        set_scene_fields!(
-            block.blockscene; 
-            current_screens = new_figure.scene.current_screens, 
-        )
+
     end
 
     return position
 end
 
-function set_scene_fields!(scene; fields...)
+function foreach_scene(f, scene::Scene)
+    f(scene)
+    foreach_scene.((f,), scene.children)
+end
+
+function connect_scene_rec(scene, old_screen, new_screen; fields...)
     for (field, value) in fields
         setfield!(scene, field, value)
     end
