@@ -113,7 +113,7 @@ Creates a figure of the specified size with the specified arguments, themed for 
 ### Keyword arguments
 - `landscape = automatic`: Decides whether the figure should be in landscape or portrait mode.  If `automatic`, decides automatically.  To set this manually, set `landscape = true` or `landscape = false`.
 - `naxes = 1`: The number of axes to create in the central grid.  Automatically laid out.  
-
+- `axistitles = Makie.automatic`: The tities for each axis.  If set to `automatic`, they will be the positions of the axes in the layout.
 ### Returns
 
 Returns a NamedTuple containing the following items:
@@ -135,13 +135,14 @@ function create_page(
         padding = _best_padding(paper_size),
         supertitle = "Title",
         description = "Placeholder: This is a label which should describe your plot[s].",
+        axistitles = Makie.automatic,
         theme_kwargs...
     )   
 
     # closest_paper_size = approx_paper_size(paper_size)
 
     if landscape == Makie.automatic
-        if naxes > 1
+        if prod(naxes) > 1
             landscape = true
         else
             landscape = false
@@ -149,6 +150,9 @@ function create_page(
     end
 
     axis_nrows, axis_ncols = compute_gridsize(naxes; landscape)
+    if axistitles == Makie.automatic
+        axistitles = [string(ind.I) for ind in vec(Base.permutedims(CartesianIndices((axis_nrows, axis_ncols))))]
+    end
 
     paper_theme = paper_size_theme(paper_size)
 
@@ -163,7 +167,6 @@ function create_page(
 
         # Get the Figure's background color, then check it 
         bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
-        @show bg_color HSL(bg_color).l
         # convert the background color to HSL, then check luminance.
         if HSL(bg_color).l ≥ 0.4 || alpha(bg_color) ≤ 0.3# light theme
             xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_Full_Colour.png")))
@@ -182,13 +185,33 @@ function create_page(
 
         # adjust the QR code for background color
         figure.scene.plots[2].colormap = qr_code_colormap
-
+        supertitle_layout = GridLayout(figure[1, 1], 1, 3; tellheight = true, tellwidth = false)
         # first, create the supertitle
         supertitle = Label(
-            figure[1, 1];
+            supertitle_layout[1, 2];
             theme.Supertitle...,
             text = supertitle,
             tellwidth = false,
+        )
+
+        # in order to ensure that the supertitle never crosses the logo, we can add a box of zero height
+        logo_avoidance_box_left = Box(supertitle_layout[1, 1];
+            strokevisible = false,
+            color = :transparent,
+            tellwidth = true,
+            tellheight = false,
+            width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
+                Fixed((logo_x_extents.right - logo_x_extents.left) + 2 * padding)
+            end
+        )
+        logo_avoidance_box_right = Box(supertitle_layout[1, 3];
+            strokevisible = false,
+            color = :transparent,
+            tellwidth = true,
+            tellheight = false,
+            width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
+                Fixed((logo_x_extents.right - logo_x_extents.left) + 2 * padding)
+            end
         )
 
         # create a sub grid layout in which all the axes will lie
@@ -203,11 +226,11 @@ function create_page(
 
         for i in 1:axis_nrows
             for j in 1:axis_ncols
-                if (i-1) * axis_nrows + j > naxes
+                if (i-1) * axis_ncols + j > prod(naxes)
                     _stop = true
                     break
                 else
-                    axes[i, j] = Axis(axis_layout[i, j]; title = "($i, $j)", aspect = axisaspect)
+                    axes[i, j] = Axis(axis_layout[i, j]; title = axistitles[j + (i-1) * axis_ncols], aspect = axisaspect)
                     hideaxisdecorations && hidedecorations!(axes[i, j])
                     hideaxisspines && hidespines!(axes[i, j])
                 end

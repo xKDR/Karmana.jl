@@ -9,31 +9,23 @@ Call by using the ternary colormap object (`tmap`) as a callable - methods inclu
 
 Visualize by calling `Makie.plot(tmap)`.
 """
-mutable struct TernaryColormap
+Base.@kwdef struct TernaryColormap
     "Holds the map from x-value to color."
-    xmap::Makie.PlotUtils.ColorGradient
+    xmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_red.csv"))
     "Holds the map from y-value to color."
-    ymap::Makie.PlotUtils.ColorGradient
+    ymap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_green.csv"))
     "Holds the map from z-value to color."
-    zmap::Makie.PlotUtils.ColorGradient
+    zmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_blue.csv"))
+
 end
 
 function TernaryColormap(xmap, ymap, zmap)
-    return TernaryColormap(PlotUtils.cgrad(xmap), PlotUtils.cgrad(ymap), PlotUtils.cgrad(zmap))
-end
-
-# default colormaps - perceptual r/g/b
-function TernaryColormap()
-    return TernaryColormap(
-        csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_red.csv")),
-        csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_green.csv")),
-        csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_blue.csv")),
-    )
+    return TernaryColormap(; xmap, ymap, zmap)
 end
 
 
 # how to actually call this thing
-function (cmap::TernaryColormap)(x, y, z)
+function (cmap::TernaryColormap)(x::Real, y::Real, z::Real)
     # handle colors outside plane
     if x < 0f0 || y < 0f0 || z < 0f0 || !isapprox(x + y + z, 1)
         return get(cmap.xmap, NaN)

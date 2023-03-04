@@ -91,7 +91,7 @@ function compute_gridsize(numplts::Int; landscape = false, nr = -1, nc = -1)
     end
 end
 
-compute_gridsize((nr, nc); landscape = false) = compute_gridsize(nr * nc; landscape, nr, nc)
+compute_gridsize((nr, nc); landscape = false) = (nr, nc)
 
 
 
@@ -104,4 +104,87 @@ function resample_file(file, to_raster::Rasters.AbstractRaster, crop_geom)
     resampled_raster = Rasters.resample(cropped_raster, to=to_raster, method = :average)
     original_bounds = bounds(raster)
     return Rasters.crop(resampled_raster, to=GeoInterface.Extents.Extent(X = original_bounds[1], Y = original_bounds[2]))
+end
+
+
+# data munging utilities for the CPHS database
+
+"""
+    get_HR_number(hr::Union{String, Missing})::Union{Int, Missing}
+
+Extracts the number from a string of a form `"HR ???"` and returns it.
+If the input is `missing`, then `missing` is returned.
+"""
+function get_HR_number(hr::String)
+    return parse(Int, hr[(findfirst(' ', hr)+1):end])
+end
+
+get_HR_number(::Missing) = missing
+
+# read lat-long strings from the CMIE Capex database 
+
+"""
+    latlong_string_to_points(latlong_string)
+
+Parses a string of the form `lat1,long1 : lat2,long2 : lat3,long3 : ...` 
+and returns a Vector of Point2e which define points as (long, lat).  
+
+Is robust to cutoff errors and other potential issues.
+"""
+function latlong_string_to_points(latlong_string::AbstractString)
+
+    points = Point2{Float64}[]
+
+    pointstrings = split(latlong_string, ":")
+
+    isempty(pointstrings) && return []
+
+    for pointstring in pointstrings
+        point = split(pointstring, ",")
+        if length(point) ≤ 1 || length(point) > 2 || any(isempty.(point))
+            continue
+        else
+            push!(points, Point2{Float64}(parse(Float64, strip(point[2])), parse(Float64, strip(point[1]))))
+        end
+    end
+
+    return points
+
+end
+
+"""
+    points_weights(latlong_strings::Vector{:< AbstractString}, costs::Vector{<: Real})
+
+Parses strings of the form `lat1,long1 : lat2,long2 : lat3,long3 : ...` 
+and returns a Vector of Point2e which define points as (long, lat), as well as
+a vector of weights per point.  If the string has more than one point defined, 
+the weight is spread across all `n` points such that each point has a weight of `cost[i]/n`.
+
+Returns (::Vector{Point2e}, ::Vector{<: Real}).
+    
+
+!!! note
+    This format of data is often found in CMIE capex location data.
+"""
+function points_weights(latlong_strings, costs)
+    @assert length(latlong_strings) == length(costs)
+
+    points = Vector{Point2{Float64}}()
+    weights = Vector{Float64}()
+
+    sizehint!(points, length(latlong_strings))
+    sizehint!(weights, length(latlong_strings))
+
+    for (latlong_string, cost) in zip(latlong_strings, costs)
+        parsed_points = latlong_string_to_points(latlong_string)
+        if length(parsed_points) == 1
+            push!(points, parsed_points[1])
+            push!(weights, cost)
+        elseif length(parsed_points) > 1
+            append!(points, parsed_points)
+            append!(weights, fill(cost/length(parsed_points), length(parsed_points)))
+        end
+    end
+
+    return points, weights
 end
