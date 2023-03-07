@@ -2,6 +2,22 @@
     Karmana.jl
 
 This module is built t
+
+# Usage
+
+# Configuration
+
+## Environment variables
+You can set `ENV["KARMANA_DISTRICT_SHAPEFILE"] = path_to_maps_shapefile` to force Karmana.jl to use a local shapefile to generate its India geometry.
+You can either set this before loading Karmana.jl, or call `Karmana.__init__()` after setting it 
+to reset the `state_df`, `hr_df`, and `district_df` global variables (described below).
+
+## Global variables
+
+- `state_df::Ref{DataFrame}`
+- `hr_df::Ref{DataFrame}`
+- `district_df::Ref{DataFrame}`
+- `state_df::Ref{DataFrame}`
 """
 module Karmana
 
@@ -26,6 +42,9 @@ using DBInterface, MySQL
 using Scratch, p7zip_jll
 # standard libraries
 using LinearAlgebra, Dates, Downloads, DelimitedFiles
+
+GeoInterfaceMakie.@enable(ArchGDAL.AbstractGeometry)
+GeoInterfaceMakie.@enable(Shapefile.AbstractGeometry)
 
 assetpath(args::AbstractString...) = abspath(dirname(@__DIR__), "assets", args...)
 
@@ -92,6 +111,10 @@ function __init__()
     has_india_data = false
 
     try
+        if haskey(ENV, "KARMANA_DISTRICT_SHAPEFILE") && isfile(ENV["KARMANA_DISTRICT_SHAPEFILE"])
+            error("Continue")
+        end
+
         _state_df, _hr_df, _district_df = state_hr_district_dfs()
 
         # _district_df[302, :hr_nmbr] = 3 # Kinnaur - district name not assigned HR_Name
@@ -107,7 +130,7 @@ function __init__()
             district_df[].geometry = GeoMakie.geo2basic.(district_df[].geometry)
             # apply certain patches here
             district_df[][302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
-            district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
+            district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name # 104
             hr_df[] = _prepare_merged_geom_dataframe(district_df[], :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name))
             state_df[] = _prepare_merged_geom_dataframe(district_df[], :ST_NM; capture_fields = (:ST_CD,))
 
