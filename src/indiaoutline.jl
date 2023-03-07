@@ -40,7 +40,7 @@ function id_key_for_admin_level(admin_level::Symbol)
     end
 end
 
-_nan_color(::Type{<: Number}, nan_color) = NaN
+_nan_color(T::Type{<: Number}, nan_color) = T(NaN)
 _nan_color(::Type{<: Colors.Colorant}, nan_color) = nan_color
 _nan_color(::Type{<: Any}, nan_color) = NaN
 
@@ -142,8 +142,8 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.District.zlevel[] = plot.State.zlevel[] + 2
         # plot.River.zlevel[] = plot.State.zlevel[] + 1
 
-        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
-        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
+        merge_column = plot.merge_column[] isa Makie.Automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
+        external_merge_column = plot.external_merge_column[] isa Makie.Automatic ? merge_column : plot.external_merge_column[]
         
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
 
@@ -172,7 +172,7 @@ function Makie.plot!(plot::IndiaOutline)
         merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
         external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
 
-        nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
+        nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.HR.nan_color[])
 
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
             # create a dataframe with the inputs which we can use to merge
@@ -204,7 +204,7 @@ function Makie.plot!(plot::IndiaOutline)
         merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
         external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
 
-        nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
+        nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.District.nan_color[])
 
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
             # create a dataframe with the inputs which we can use to merge
