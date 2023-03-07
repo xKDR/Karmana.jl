@@ -1,5 +1,6 @@
 """
-    mutable struct TernaryColormap
+    struct TernaryColormap
+    TernaryColormap(; xmap, ymap, zmap)
 
 Represents a ternary colormap.  
 
@@ -16,12 +17,11 @@ Base.@kwdef struct TernaryColormap
     ymap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_green.csv"))
     "Holds the map from z-value to color."
     zmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_blue.csv"))
-
 end
 
-function TernaryColormap(xmap, ymap, zmap)
-    return TernaryColormap(; xmap, ymap, zmap)
-end
+# function TernaryColormap(xmap, ymap, zmap)
+#     return TernaryColormap(; xmap, ymap, zmap)
+# end
 
 
 # how to actually call this thing

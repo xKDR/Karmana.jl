@@ -126,12 +126,12 @@ function theme_a0()
             fontsize = 80,
         ),
         DescriptionLabel = (
-            fontsize = 30,
+            fontsize = 40,
         ),
         Axis = (
-            titlesize = 350,
+            titlesize = 55,
         ),
-        fontsize = 20,
+        fontsize = 30,
     )
 end
 
