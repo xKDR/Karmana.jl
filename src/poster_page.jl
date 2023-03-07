@@ -1,4 +1,18 @@
 # TODO: document this
+"""
+    prepare_page(
+        paper_size::Union{Symbol, NTuple{2, <: Real}},
+        qr_code_contents::String;
+        landscape = false,
+        padding = 3,
+        logo = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_White.jpg"))),
+        logo_height = 40,
+        logo_padding = 5,
+        qr_code_height = 60,
+        qr_code_padding = 10,
+    )
+
+"""
 function prepare_page(
         paper_size::Union{Symbol, NTuple{2, <: Real}},
         qr_code_contents::String;
@@ -28,6 +42,8 @@ function prepare_page(
             (1190, 1684)
         elseif paper_size == :a1
             (1684, 2384)
+        elseif paper_size == :a0
+            (2384, 3368)
         else
             @warn("Paper size `$paper_size` is not known!  Defaulting to `:a4``.")
             (595, 842)
