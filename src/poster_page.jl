@@ -123,13 +123,14 @@ end
 Creates a figure of the specified size with the specified arguments, themed for XKDR.  Applies the appropriate paper size theme (`theme_a4`, `theme_a3`, etc.)
 
 ### Arguments
-- `paper_size`: A symbol representing the desired paper size; can be `:a[1/2/3/4]`.  More planned.  In the future, you may also be able to pass a tuple.
-- `qr_code_link`: The contents of the QR code shown at the bottom left of the page.
+- `paper_size`: A symbol representing the desired paper size; can be `:a[0/1/2/3/4]`.  More planned.  In the future, you may also be able to pass a tuple.
+- `qr_code_link`: The contents of the QR code shown at the bottom left of the page.  Must be a string.
 
 ### Keyword arguments
 - `landscape = automatic`: Decides whether the figure should be in landscape or portrait mode.  If `automatic`, decides automatically.  To set this manually, set `landscape = true` or `landscape = false`.
 - `naxes = 1`: The number of axes to create in the central grid.  Automatically laid out.  
 - `axistitles = Makie.automatic`: The tities for each axis.  If set to `automatic`, they will be the positions of the axes in the layout.
+
 ### Returns
 
 Returns a NamedTuple containing the following items:
@@ -137,7 +138,7 @@ Returns a NamedTuple containing the following items:
 - `supertitle`: The `Label` which serves as the figure's title.
 - `axis_layout`: The GridLayout in which the axes are placed.
 - `axes`: A `Matrix{Union{Axis, Nothing}}` which contains the axes which can be placed.  If `nrows * ncols > naxes`, then the remaining positions will be `nothing`.
-- `description_layout`: The GridLayout in which the description is placed.  Has 3 columns and 1 row.  The description label is located in `description_layout[1, 1]`, and `[1, 3]` is reserved for a box representing the QR code.
+- `description_layout`: The GridLayout in which the description is placed.  Has 3 columns and 1 row.  The description label is located in `description_layout[1, 1]`, and `[1, 3]` is reserved for a box representing the QR code.  You can plot a legend or colorbar in `description_layout[1, 2]`.
 - `description_label`: The `Label` which holds the figure's description.
 """
 function create_page(
