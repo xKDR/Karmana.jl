@@ -134,12 +134,23 @@ Creates a figure of the specified size with the specified arguments, themed for 
 ### Returns
 
 Returns a NamedTuple containing the following items:
+
 - `figure`: The Figure in which everything is plotted.
 - `supertitle`: The `Label` which serves as the figure's title.
 - `axis_layout`: The GridLayout in which the axes are placed.
 - `axes`: A `Matrix{Union{Axis, Nothing}}` which contains the axes which can be placed.  If `nrows * ncols > naxes`, then the remaining positions will be `nothing`.
 - `description_layout`: The GridLayout in which the description is placed.  Has 3 columns and 1 row.  The description label is located in `description_layout[1, 1]`, and `[1, 3]` is reserved for a box representing the QR code.  You can plot a legend or colorbar in `description_layout[1, 2]`.
 - `description_label`: The `Label` which holds the figure's description.
+
+The items can be extracted from the named tuple as in the following example:
+```julia
+page = create_page(:a4, "https://xkdr.org")
+page.figure
+page.axes[i::Int, j::Int]
+page.description_layout
+page.description_label
+...
+```
 """
 function create_page(
         paper_size::Union{Symbol, Tuple{Int, Int}},

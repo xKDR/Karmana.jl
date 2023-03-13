@@ -48,17 +48,47 @@ _nan_color(::Type{<: Any}, nan_color) = NaN
     indiaoutline!(admin_level::Symbol, ids::Vector, vals::Vector{<: Real}; kw_args...)
     indiaoutline!(admin_level::Symbol, dataframe::DataFrame, [id_column::Symbol], value_column::Symbol; kw_args...)
 
-Plots an outline of India, merged with the data passed in.  
+Plots an outline of India, merged with the data passed in.  This data must fundamentally have two things:
+a column of IDs, and a column of values.  The IDs must match the IDs in the CPHS database, 
+and the values may be either numbers, or explicit colors.
 
-If the attribute `crop_to_data` is `true`, then this crops the map to the bounding box of the provided IDs only, and does not draw any other states/HRs/districts.
+# Arguments
 
 `admin_level` must be one of `:State`, `:HR`, or `:District`.  
 
 `ids` must be a `Vector{Union{Int, Missing}}` or a `Vector{Int}`.  It and `vals` must have the same length.
 
+# Attributes
+
+
 One can set the attributes of the various plot elements by setting the values of the corresponding nested Attributes. 
 These are `plot.State`, `plot.HR`, `plot.District`, and `plot.River`.
 
+For example, to set the stroke width of districts to `0.25`, one would do:
+
+```julia
+plot.District.strokewidth[] = 0.25
+```
+
+The attributes available for `State`, `HR`, and `District` are those of `poly`; the attributes available for `River` are those of `lines`.
+
+## Cropping the map to provided data
+
+If the attribute `crop_to_data` is `true`, then this crops the map to the bounding box of the provided IDs only, and does not draw any other states/HRs/districts.
+Otherwise, all available geometries are drawn, but only the provided IDs are colored by their values; the rest of the geometries remain transparent.
+
+## Controlling how the data is merged
+
+You can control the column on which data is merged by setting the `merge_column` and `external_merge_column` keyword arguments.
+
+- `merge_column` specifies the key with which to merge of the provided `ids` to the CPHS database for that admin level.
+- `external_merge_column` specifies the key with which to merge the provided `ids` with the lower admin level geometries.  
+
+For example, if the provided `admin_level` is `:State`, then `merge_key` will control the key for `state_df`, and `external_merge_key`
+will control the key for `hr_df` and `district_df`.
+
+To see all available attributes and their defaults, have a look at the extended help section by running `??indiaoutline!` in the REPL.
+ 
 # Extended help
 
 ## Available attributes, and their values

@@ -1,15 +1,23 @@
 """
     Karmana.jl
 
-This module is built t
+This module is built to automate some processes to;
+- Plot data on maps of India
+- Create coherent and good-looking posters of plots quickly and easily
 
 # Usage
+
+Karmana has two main exports, [`create_page`](@ref) and [`indiaoutline`](@ref).
+
+`create_page` returns a NamedTuple with all the elements of a poster figure, 
+and `indiaoutline` is a recipe for plotting data associated with Indian states, 
+homogeneous regions as defined by CMIE, and districts.
 
 # Configuration
 
 ## Environment variables
 You can set `ENV["KARMANA_DISTRICT_SHAPEFILE"] = path_to_maps_shapefile` to force Karmana.jl to use a local shapefile to generate its India geometry.
-You can either set this before loading Karmana.jl, or call `Karmana.__init__()` after setting it 
+You can either set this before loading Karmana.jl, or call [`Karmana.__init__()`](@ref) after setting it 
 to reset the `state_df`, `hr_df`, and `district_df` global variables (described below).
 
 ## Global variables
@@ -17,7 +25,7 @@ to reset the `state_df`, `hr_df`, and `district_df` global variables (described 
 - `state_df::Ref{DataFrame}`
 - `hr_df::Ref{DataFrame}`
 - `district_df::Ref{DataFrame}`
-- `state_df::Ref{DataFrame}`
+- `india_rivers::Ref{DataFrame}`
 """
 module Karmana
 
@@ -44,7 +52,7 @@ using Scratch, p7zip_jll
 using LinearAlgebra, Dates, Downloads, DelimitedFiles
 
 GeoInterfaceMakie.@enable(ArchGDAL.AbstractGeometry)
-GeoInterfaceMakie.@enable(Shapefile.AbstractGeometry)
+GeoInterfaceMakie.@enable(Shapefile.AbstractShape)
 
 assetpath(args::AbstractString...) = abspath(dirname(@__DIR__), "assets", args...)
 
@@ -69,30 +77,22 @@ export indiaoutline, indiaoutline!, IndiaOutline
 
 
 """
-    state_df[]::DataFrame
-
 Contains the State dataframe
 """
 const state_df = Ref{DataFrame}()
 
 """
-    hr_df[]::DataFrame
-
 Contains the HR dataframe
 """
 const hr_df = Ref{DataFrame}()
 
 """
-    district_df[]::DataFrame
-
 Contains the District dataframe
 """
 const district_df = Ref{DataFrame}()
 
 """
-    india_rivers[]::ArchGDAL.IGeometry
-
-Contains an ArchGDAL geometry which contains a multilinestring of
+Contains an `ArchGDAL.IGeometry` which contains a multilinestring of
 the intersection of the world's rivers with India.
 """
 const india_rivers = Ref{ArchGDAL.IGeometry}()
@@ -191,7 +191,7 @@ function __init__()
 
             # save this in well-known-binary form to the cache file.
             write(cached_rivers_file, GeoFormatTypes.val(WellKnownGeometry.getwkb(india_rivers[])))
-        else # we have the cache, so can write to it.
+        else # we have the cache, so can simply read from it.
             india_rivers[] = ArchGDAL.fromWKB(read(cached_rivers_file))
         end
     end
@@ -201,3 +201,125 @@ end
 
 
 end
+
+
+# klein(u, v) = Point3f((-2/15 * cos(u) * (
+#     3*cos(v) - 30*sin(u) 
+#   + 90 *cos(u)^4 * sin(u) 
+#   - 60 *cos(u)^6 * sin(u)  
+#   + 5 * cos(u)*cos(v) * sin(u))
+#  ),
+#  (-1/15 * sin(u) * (3*cos(v) 
+#   - 3*cos(u)^2 * cos(v) 
+#   - 48 * cos(u)^4*cos(v) 
+#   + 48*cos(u)^6 *cos(v) 
+#   - 60 *sin(u) 
+#   + 5*cos(u)*cos(v)*sin(u) 
+#   - 5*cos(u)^3 * cos(v) *sin(u) 
+#   - 80*cos(u)^5 * cos(v)*sin(u) 
+#   + 80*cos(u)^7 * cos(v) * sin(u))
+#  ),
+#  (2/15 * (3 + 5*cos(u) *sin(u))*sin(v)))
+
+# us = LinRange(0, π, 41)
+# vs = LinRange(0, 2π, 25)
+
+# lines(klein.(us[5], vs))
+
+# points = klein.(us', vs)
+
+# xt, yt, zt = map(i -> getindex.(points, i), 1:3)
+
+# index_color = (((u, v),) -> v + (u-1)*length(vs)).(tuple.(axes(us, 1)', axes(vs, 1)))
+# u_color = first.(tuple.(us', vs))
+# colormap = cgrad([:blue, :yellow, :orange, :red, :orange, :yellow, :blue])
+
+# surface(xt, yt, zt; color = color, colormap = colormap, shading = false, axis = (; type = Axis3)) # causes strange error - I think the quad mesh we're using is actually wrong here!
+# scatter(xt |> vec, yt |> vec, zt |> vec; color = u_color |> vec, colormap = :viridis) # produces the correct topology
+
+# """
+#     curvilinear_grid_mesh_discretesurface(xs, ys, zs, colors, colortrait = ContinuousSurface())
+
+# Tesselates the grid defined by `xs` and `ys` in order to form a mesh with per-face coloring
+# given by `colors`.
+
+# The grid defined by `xs` and `ys` must have dimensions `(nx, ny) == size(colors) .+ 1`, as is the case for heatmap/image.
+# """
+# function curvilinear_grid_mesh(xs, ys, zs, colors = zs, colortrait::Makie.MakieCore.ConversionTrait = Makie.DiscreteSurface())
+#     nx, ny = size(zs)
+#     ni, nj = size(colors)
+    
+#     iteration_size = if colortrait isa Makie.DiscreteSurface
+#         @assert (nx == ni+1) & (ny == nj+1) """
+#             `curvilinear_grid_mesh` was provided a `DiscreteSurface()` plot trait, implying that the input coordinates define grid edges. 
+#             Expected nx, ny = ni+1, nj+1; got nx=$nx, ny=$ny, ni=$ni, nj=$nj.  
+#             nx/y are size(zs), ni/j are size(colors).
+#             """
+#         size(colors)
+#     elseif colortrait isa Makie.ContinuousSurface
+#         @assert (nx == ni) & (ny == nj) """
+#         `curvilinear_grid_mesh` was provided a `ContinuousSurface()` plot trait, implying that the input coordinates define grid centers. 
+#         Expected nx, ny = ni, nj; got nx=$nx, ny=$ny, ni=$ni, nj=$nj.  
+#         nx/y are size(zs), ni/j are size(colors).
+#         """
+#         size(colors) .- 1
+#     else
+#         @error "`curvilinear_grid_mesh` only supports instances of `Makie.MakieCore.DiscreteSurface()` or `Makie.MakieCore.ContinuousSurface()`, of which the provided `colortrait` $colortrait is neither."
+#     end
+
+#     input_points_vec = Makie.matrix_grid(identity, xs, ys, zs)
+#     input_points = reshape(input_points_vec, size(zs))
+
+#     triangle_faces = Vector{GeometryBasics.TriangleFace{UInt32}}()
+#     triangle_points = Vector{Point3f}()
+#     triangle_colors = Vector{eltype(colors)}()
+#     sizehint!(triangle_faces, size(input_points, 1) * size(input_points, 2) * 2)
+#     sizehint!(triangle_points, size(input_points, 1) * size(input_points, 2) * 2 * 3)
+#     sizehint!(triangle_colors, size(input_points, 1) * size(input_points, 2) * 3)
+
+#     point_ind = 1
+#     @inbounds for i in 1:iteration_size[1]
+#         for j in 1:iteration_size[2]
+#             # push two triangles to make a square
+#             # to make this efficient, since we know the two triangles will have the same colour, 
+#             # we can just assign the same colour to the points on the quad, which decreases the number of points per quad
+#             # from 6 to 4.
+#             push!(triangle_points, input_points[i, j])
+#             push!(triangle_points, input_points[i+1, j])
+#             push!(triangle_points, input_points[i+1, j+1])
+#             push!(triangle_points, input_points[i, j+1])
+#             # push vertex colors
+#             push!(triangle_colors, colors[i, j]); push!(triangle_colors, colors[i, j]); push!(triangle_colors, colors[i, j]); push!(triangle_colors, colors[i, j])
+#             # push triangle faces
+#             push!(triangle_faces, GeometryBasics.TriangleFace{UInt32}((point_ind, point_ind+1, point_ind+2)))
+#             push!(triangle_faces, GeometryBasics.TriangleFace{UInt32}((point_ind+2, point_ind+3, point_ind)))
+#             point_ind += 4
+#         end
+#     end
+
+#     return triangle_points, triangle_faces, triangle_colors
+    
+# end
+
+# @recipe(KleinBottle) do scene
+#     default_theme(scene)
+# end
+
+# function Makie.plot!(plot::KleinBottle)
+#     us = LinRange(0, π, 41)
+#     vs = LinRange(0, 2π, 25)
+
+#     u_color = first.(tuple.(us', vs))
+
+
+#     points = klein.(us', vs)
+
+#     xt, yt, zt = map(i -> getindex.(points, i), 1:3)
+
+#     meshp, meshf, meshc = curvilinear_grid_mesh(xt, yt, zt, u_color, ContinuousSurface())
+#     msh = Makie.GeometryBasics.Mesh(meshp, meshf)
+#     mesh!(plot, msh; color = meshc, colormap = :RdYlBu_8, shading = false)
+#     wireframe!(plot, msh; color = :gray50)
+
+#     return plot
+# end
