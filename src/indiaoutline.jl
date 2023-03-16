@@ -165,16 +165,16 @@ function Makie.plot!(plot::IndiaOutline)
 
     value_colname = gensym()
 
+
+    merge_column = plot.merge_column[] isa Makie.Automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
+    external_merge_column = plot.external_merge_column[] isa Makie.Automatic ? merge_column : plot.external_merge_column[]
+
     # create the merged hr, state, district polygons
     geom_color_func = if admin_level == :State
 
         # plot.HR.zlevel[] = plot.State.zlevel[] + 3
         # plot.District.zlevel[] = plot.State.zlevel[] + 2
         # plot.River.zlevel[] = plot.State.zlevel[] + 1
-
-        merge_column = plot.merge_column[] isa Makie.Automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
-        external_merge_column = plot.external_merge_column[] isa Makie.Automatic ? merge_column : plot.external_merge_column[]
-        
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.State.nan_color[])
 
         onany(plot.converted[2], plot.converted[3], plot.crop_to_data) do ids, vals, crop
@@ -186,7 +186,7 @@ function Makie.plot!(plot::IndiaOutline)
             merged_df = merge_method(Karmana.state_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             state_geoms[] = merged_df.geometry
             state_colors[] = map(x -> ismissing(x) ? nan_color : x, merged_df[!, value_colname])
-            merge_codes = unique(merged_df[!, plot.external_merge_column[]])
+            merge_codes = unique(merged_df[!, external_merge_column])
             hr_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.hr_df[]; view = false)[:, :geometry]
             hr_colors.val = fill(NaN, length(hr_geoms.val))
             notify(hr_geoms); notify(hr_colors)
@@ -199,8 +199,6 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.State.zlevel[] = plot.HR.zlevel[] + 3
         # plot.District.zlevel[] = plot.HR.zlevel[] + 2
         # plot.River.zlevel[] = plot.HR.zlevel[] + 1
-        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
-        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
 
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.HR.nan_color[])
 
@@ -231,8 +229,6 @@ function Makie.plot!(plot::IndiaOutline)
         # plot.State.zlevel[] = plot.District.zlevel[] + 3
         # plot.HR.zlevel[] = plot.District.zlevel[] + 2
         # plot.River.zlevel[] = plot.District.zlevel[] + 1
-        merge_column = plot.merge_column[] == Makie.automatic ? id_key_for_admin_level(admin_level) : plot.merge_column[]
-        external_merge_column = plot.external_merge_column[] == Makie.automatic ? merge_column : plot.external_merge_column[]
 
         nan_color = _nan_color((nonmissingtype(eltype(plot.converted[3][]))), plot.District.nan_color[])
 
