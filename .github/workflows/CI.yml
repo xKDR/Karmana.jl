@@ -32,6 +32,17 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
+      - run: |
+          julia --project=test -e 'Pkg.add([
+              Pkg.PackageSpec(url = "https://github.com/asinghvi17/Rasters.jl", rev = "as/makierecipe") ,
+              Pkg.PackageSpec(url = "https://github.com/asinghvi17/TernaryDiagrams.jl", rev = "as/improvements"),
+              Pkg.PackageSpec(url = "https://github.com/xKDR/Karmana.jl", rev = "main"),
+              Pkg.PackageSpec(url = "https://github.com/xKDR/Survey.jl", rev = "main"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "MakieCore", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "CairoMakie", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
+          ])'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
@@ -48,6 +59,17 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
+      - run: |
+          julia --project=docs -e 'Pkg.add([
+              Pkg.PackageSpec(url = "https://github.com/asinghvi17/Rasters.jl", rev = "as/makierecipe") ,
+              Pkg.PackageSpec(url = "https://github.com/asinghvi17/TernaryDiagrams.jl", rev = "as/improvements"),
+              Pkg.PackageSpec(url = "https://github.com/xKDR/Karmana.jl", rev = "main"),
+              Pkg.PackageSpec(url = "https://github.com/xKDR/Survey.jl", rev = "main"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "MakieCore", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "CairoMakie", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
+          ])'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-docdeploy@v1
         env:
