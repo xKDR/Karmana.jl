@@ -114,7 +114,7 @@ function theme_a2()
     )
 end
 
-function theme_a0()
+function theme_a1()
     return Attributes(
         Page = (
             logo_height = 60,
@@ -130,6 +130,27 @@ function theme_a0()
         ),
         Axis = (
             titlesize = 55,
+        ),
+        fontsize = 30,
+    )
+end
+
+function theme_a0()
+    return Attributes(
+        Page = (
+            logo_height = 130,
+            logo_padding = 0,
+            qr_code_height = 100,
+            qr_code_padding = 0,
+        ),
+        Supertitle = (
+            fontsize = 120,
+        ),
+        DescriptionLabel = (
+            fontsize = 70,
+        ),
+        Axis = (
+            titlesize = 90,
         ),
         fontsize = 30,
     )
