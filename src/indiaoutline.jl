@@ -258,9 +258,9 @@ function Makie.plot!(plot::IndiaOutline)
     end
     notify(plot[2])
 
-    state_plot    = poly!(plot, plot.State, state_geoms; color = state_colors, colormap = plot.colormap, highclip = get(plot, :highclip, false), lowclip = get(plot, :lowclip, false))
-    hr_plot       = poly!(plot, hr_geoms; color = hr_colors, colorrange = get(plot, :colorrange, (0, 1)), colormap = plot.colormap, highclip = get(plot, :highclip, false), lowclip = get(plot, :lowclip, false), plot.HR...)
-    district_plot = poly!(plot, district_geoms; color = district_colors, colormap = plot.colormap, colorrange = get(plot, :colorrange, (0, 1)), highclip = get(plot, :highclip, false), lowclip = get(plot, :lowclip, false), plot.District...)
+    state_plot    = poly!(plot, plot.State, state_geoms; color = state_colors, colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip)
+    hr_plot       = poly!(plot, hr_geoms; color = hr_colors, colorrange = get(plot, :colorrange, (0, 1)), colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip, plot.HR...)
+    district_plot = poly!(plot, district_geoms; color = district_colors, colormap = plot.colormap, colorrange = get(plot, :colorrange, (0, 1)), highclip = plot.highclip, lowclip = plot.lowclip, plot.District...)
     river_plot    = lines!(plot, GeoMakie.geo2basic(Karmana.india_rivers[]); inspectable = false, xautolimits = false, yautolimits = false, plot.River...)
 
 
