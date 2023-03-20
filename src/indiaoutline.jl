@@ -84,7 +84,7 @@ You can control the column on which data is merged by setting the `merge_column`
 - `merge_column` specifies the key with which to merge of the provided `ids` to the CPHS database for that admin level.
 - `external_merge_column` specifies the key with which to merge the provided `ids` with the lower admin level geometries.  
 
-For example, if the provided `admin_level` is `:State`, then `merge_key` will control the key for `state_df`, and `external_merge_key`
+For example, if the provided `admin_level` is `:State`, then `merge_column` will control the key for `state_df`, and `external_merge_column`
 will control the key for `hr_df` and `district_df`.
 
 To see all available attributes and their defaults, have a look at the extended help section by running `??indiaoutline!` in the REPL.
@@ -184,7 +184,7 @@ function Makie.plot!(plot::IndiaOutline)
             merge_method = crop ? DataFrames.innerjoin : DataFrames.outerjoin
             
             merged_df = merge_method(Karmana.state_df[], df_to_merge; on = merge_column, matchmissing = :equal)
-            state_geoms[] = merged_df.geometry
+            dropmissing!(merged_df, :geometry)
             state_colors[] = map(x -> ismissing(x) ? nan_color : x, merged_df[!, value_colname])
             merge_codes = unique(merged_df[!, external_merge_column])
             hr_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.hr_df[]; view = false)[:, :geometry]
@@ -210,6 +210,7 @@ function Makie.plot!(plot::IndiaOutline)
             # merge the dataframes using the given method
             merged_df = merge_method(Karmana.hr_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             # update all other Observables(geoms, colors, etc)
+            dropmissing!(merged_df, :geometry)
             hr_geoms.val = merged_df.geometry
             hr_colors.val = map(x -> ismissing(x) ? nan_color : (x), merged_df[!, value_colname])
             notify(hr_geoms); notify(hr_colors)
@@ -239,6 +240,7 @@ function Makie.plot!(plot::IndiaOutline)
             merge_method = crop ? DataFrames.innerjoin : DataFrames.outerjoin
             
             merged_df = merge_method(Karmana.district_df[], df_to_merge; on = merge_column, matchmissing = :equal)
+            dropmissing!(merged_df, :geometry)
             district_geoms[] = merged_df.geometry
             district_colors[] = map(x -> ismissing(x) ? nan_color : (x), merged_df[!, value_colname])
 
