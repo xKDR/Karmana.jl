@@ -27,7 +27,7 @@ function theme_xkdr()
                 vertical = false,
                 flipaxis = false,
                 tellwidth = true,
-                tellheight = false,
+                tellheight = true,
                 alignmode = Outside(), # make sure that protrusions stay inside!
             ),
             Supertitle = (
