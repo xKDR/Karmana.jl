@@ -113,3 +113,25 @@ function load_karmana_geom_resources()
     return state_df, hr_df, district_df, india_merged_river_geom
 end
 
+ 
+# Projection stuff
+
+function do_transform(trans::Proj.Transformation, poly::GeometryBasics.MultiPolygon)
+    return GeometryBasics.MultiPolygon(do_transform.((trans,),poly.polygons))
+end
+
+function do_transform(trans::Proj.Transformation, poly::GeometryBasics.Polygon{N, T}) where {N, T}
+    if isempty(poly.interiors)
+        return GeometryBasics.Polygon(do_transform(trans, poly.exterior))
+    else
+        return GeometryBasics.Polygon(do_transform(trans, poly.exterior), do_transform.((trans,), poly.interiors))
+    end
+end
+
+do_transform(trans::Proj.Transformation, ls::GeometryBasics.LineString) = GeometryBasics.LineString(do_transform.((trans,), ls))
+
+do_transform(trans::Proj.Transformation, l::Line) = GeometryBasics.Line(do_transform(trans, l[1]), do_transform(trans, l[2]))
+
+function do_transform(trans::Proj.Transformation, point::GeometryBasics.Point{N, T}) where {N, T}
+    return GeometryBasics.Point{N, T}(trans(point...))
+end
