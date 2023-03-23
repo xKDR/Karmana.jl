@@ -31,7 +31,7 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
       - run: |
-          julia --project=test -e 'using Pkg; Pkg.add([
+          julia --project=. -e 'using Pkg; Pkg.add([
               Pkg.PackageSpec(url = "https://github.com/asinghvi17/Rasters.jl", rev = "as/makierecipe") ,
               Pkg.PackageSpec(url = "https://github.com/asinghvi17/TernaryDiagrams.jl", rev = "as/improvements"),
               Pkg.PackageSpec(url = "https://github.com/xKDR/Karmana.jl", rev = "main"),
