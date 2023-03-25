@@ -37,7 +37,7 @@ include("themes.jl")
 export theme_xkdr, theme_a1, theme_a2, theme_a3, theme_a4, paper_size_theme
 
 include("poster_page.jl")
-export create_page, prepare_page
+export create_page
 
 include("ternary.jl")
 export TernaryColormap
