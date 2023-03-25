@@ -3,6 +3,9 @@ using Documenter, Literate
 
 DocMeta.setdocmeta!(Karmana, :DocTestSetup, :(using Karmana); recursive=true)
 
+# Use the README as the homepage
+cp(joinpath(dirname(@__DIR__), "README.md"), joinpath(@__DIR__, "src", "index.md"))
+
 makedocs(;
     modules=[Karmana],
     authors="Anshul Singhvi <anshulsinghvi@gmail.com> and contributors",

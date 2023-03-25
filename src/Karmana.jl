@@ -1,42 +1,7 @@
-"""
-    Karmana.jl
-
-This module is built to automate some processes to;
-- Plot data on maps of India
-- Create coherent and good-looking posters of plots quickly and easily
-
-# Usage
-
-Karmana has two main exports, [`create_page`](@ref) and [`indiaoutline`](@ref).
-
-`create_page` returns a NamedTuple with all the elements of a poster figure, 
-and `indiaoutline` is a recipe for plotting data associated with Indian states, 
-homogeneous regions as defined by CMIE, and districts.
-
-# Configuration
-
-## Environment variables
-You can set `ENV["KARMANA_DISTRICT_SHAPEFILE"] = path_to_maps_shapefile` to force Karmana.jl to use a local shapefile to generate its India geometry.
-You can either set this before loading Karmana.jl, or call [`Karmana.__init__()`](@ref) after setting it 
-to reset the `state_df`, `hr_df`, and `district_df` global variables (described below).
-
-## Global variables
-
-These are all `Ref`s, so their values can be replaced during runtime.  This is useful
-if e.g. reloading the shapefile is necessary.
-
-`state_df`, `hr_df`, and `district_df` are all `DataFrame`s which hold the shapefile
-data and ID keys for the states, homogeneous regions, and districts, respectively.
-
-`india_rivers` is an `ArchGDAL.IGeometry` which holds the intersection of the rivers of
-the world with the border of India.
-
-- `state_df::Ref{DataFrame}`
-- `hr_df::Ref{DataFrame}`
-- `district_df::Ref{DataFrame}`
-- `india_rivers::Ref{ArchGDAL.IGeometry}`
-"""
 module Karmana
+
+# Load Karmana.jl's README.md as the docstring for the module!
+Base.@doc read(joinpath(dirname(@__DIR__), "README.md"), String) Karmana
 
 # visualization packages
 using Makie 
