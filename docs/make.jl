@@ -1,5 +1,5 @@
 using Karmana
-using Documenter
+using Documenter, Literate
 
 DocMeta.setdocmeta!(Karmana, :DocTestSetup, :(using Karmana); recursive=true)
 
