@@ -129,7 +129,13 @@ Creates a figure of the specified size with the specified arguments, themed for 
 ### Keyword arguments
 - `landscape = automatic`: Decides whether the figure should be in landscape or portrait mode.  If `automatic`, decides automatically.  To set this manually, set `landscape = true` or `landscape = false`.
 - `naxes = 1`: The number of axes to create in the central grid.  Automatically laid out.  
-- `axistitles = Makie.automatic`: The tities for each axis.  If set to `automatic`, they will be the positions of the axes in the layout.
+- `axistitles = Makie.automatic`: The titles for each axis.  If set to `automatic`, they will be the positions of the axes in the layout.
+- `hideaxisdecorations = true`: Whether to hide the decorations (tick labels, tick marks, etc.) for each axis.
+- `hideaxisspines = true`: Whether to hide the spines (frame lines) for each axis.
+- `supertitle = "Title"`: The title of the figure, in the "header" gridlayout.
+- `description = "Placeholder"`: The description of the figure, in the "footer" gridlayout (`page.description_layout[1, 1]`).
+- `padding`: The padding around the figure.  If a number, sets all sides to the same value.  If a tuple, sets the padding to `(left, right, top, bottom)`.
+- `axisaspect = DataAspect()`: Sets the aspect ratio of the axis.  You can set this to `nothing` if you want the default.
 
 ### Returns
 
@@ -142,7 +148,7 @@ Returns a NamedTuple containing the following items:
 - `description_layout`: The GridLayout in which the description is placed.  Has 3 columns and 1 row.  The description label is located in `description_layout[1, 1]`, and `[1, 3]` is reserved for a box representing the QR code.  You can plot a legend or colorbar in `description_layout[1, 2]`.
 - `description_label`: The `Label` which holds the figure's description.
 
-The items can be extracted from the named tuple as in the following example:
+The items can be extracted from the named tuple using standard `getproperty` syntax, as in the following example:
 ```julia
 page = create_page(:a4, "https://xkdr.org")
 page.figure
@@ -164,6 +170,7 @@ function create_page(
         supertitle = "Title",
         description = "Placeholder: This is a label which should describe your plot[s].",
         axistitles = Makie.automatic,
+        apply_xkdr_theme = true,
         theme_kwargs...
     )   
 
@@ -188,7 +195,7 @@ function create_page(
         Attributes(theme_kwargs), 
         paper_theme, 
         Makie.current_default_theme(), 
-        theme_xkdr()
+        apply_xkdr_theme ? theme_xkdr() : Attributes(),
     )
 
     with_theme(theme) do

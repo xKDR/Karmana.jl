@@ -1,3 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Karmana = "effa76d7-9abc-4e26-83a5-bd5454997a32"
+Rasters = "a3a2b9e3-a471-40c9-b274-f788e487c689"

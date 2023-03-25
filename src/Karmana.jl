@@ -22,10 +22,19 @@ to reset the `state_df`, `hr_df`, and `district_df` global variables (described 
 
 ## Global variables
 
+These are all `Ref`s, so their values can be replaced during runtime.  This is useful
+if e.g. reloading the shapefile is necessary.
+
+`state_df`, `hr_df`, and `district_df` are all `DataFrame`s which hold the shapefile
+data and ID keys for the states, homogeneous regions, and districts, respectively.
+
+`india_rivers` is an `ArchGDAL.IGeometry` which holds the intersection of the rivers of
+the world with the border of India.
+
 - `state_df::Ref{DataFrame}`
 - `hr_df::Ref{DataFrame}`
 - `district_df::Ref{DataFrame}`
-- `india_rivers::Ref{DataFrame}`
+- `india_rivers::Ref{ArchGDAL.IGeometry}`
 """
 module Karmana
 
