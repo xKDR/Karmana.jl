@@ -54,6 +54,7 @@ Rasters = "0.5"
 Reexport = "1"
 Scratch = "1"
 Shapefile = "0.9"
+WellKnownGeometry = "0.2"
 julia = "1.6"
 
 [extras]
