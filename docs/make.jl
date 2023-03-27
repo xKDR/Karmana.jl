@@ -31,5 +31,5 @@ deploydocs(;
     repo="github.com/xKDR/Karmana.jl",
     devbranch="main",
     target = "build",
-    push_previews = true,
+    push_preview = true,
 )
