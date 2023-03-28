@@ -7,13 +7,13 @@
 
 Karmana.jl is a library which implements utilities to munge CMIE CPHS data and visualize it.  It exposes multiple, orthogonal capabilities.
 
-Karmana is built on the [Makie.jl](https://github.com/MakieOrg/Makie.jl) ecosystem, including the [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl) package.
+Karmana's visualization utilities are built on the [Makie.jl](https://github.com/MakieOrg/Makie.jl) ecosystem, including the [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl) package.
 
 
 The package is built to automate some processes to:
-- Plot data on maps of India.
+- Retrieve and process data from the CMIE CPHS and Capex databases
+- Plot this data on maps of India.
 - Create coherent and good-looking posters of plots quickly and easily.
-
 
 ## Installing
 
@@ -35,11 +35,13 @@ You can either set these before loading Karmana.jl, or call `Karmana.__init__()`
 
 Karmana.jl implements several orthogonal functions.  For more information, please see the documentation API page, or by running `?funcname` in the REPL to access Julia's help mode.
 
+### Plotting and visualization
+
 - `create_page(page_size::Symbol, args...; kwargs...)`: Creates a Makie.jl figure which is optimized for a figure of the appropriate size, along with a "header" row (`GridLayout`) which has a logo and poster title, and a "footer" row (`GridLayout`) which has a description `Label`, space for a legend or colorbar, and a QR code with a customizable link.  See the documentation for more!
 - `indiaoutline!(admin_level::Symbol, ids, vals)`: A Makie.jl recipe which is able to plot at one of three admin levels (`:State`, `:HR`, and `:District`) - and display the other admin levels' borders.
 - `TernaryColormap(xgrad, ygrad, zgrad)`, which creates a "ternary colormap" that can be called on `x, y, z` values for which `x + y + z = 1`, and returns a ternary interpolated version of the color at the specified coordinates on the plane.
 
-### Global variables
+#### Global variables
 
 All of these variables are populated by `Karmana.__init__()`, and can their values can be accessed by, for example, `Karmana.state_df[]` (note the empty square brackets, which indicate that you're accessing the value of the `Ref`).
 
@@ -47,3 +49,8 @@ All of these variables are populated by `Karmana.__init__()`, and can their valu
 - `hr_df::Ref{DataFrame}`: A `DataFrame` which holds geometry data and identification keys for India's homogeneous regions, as defined by CMIE.
 - `district_df::Ref{DataFrame}`: A `DataFrame` which holds geometry data and identification keys for India's districts.
 - `india_rivers::Ref{ArchGDAL.IGeometry}`: An `ArchGDAL.IGeometry` which holds the intersection of the rivers of the world with the border of India.
+
+### CPHS helper functions
+
+### Capex helper functions
+
