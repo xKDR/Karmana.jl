@@ -124,7 +124,7 @@ function __init__()
         contingency_shapefile_path = get(ENV, "KARMANA_DISTRICT_SHAPEFILE", joinpath(dirname(dirname(dirname(@__DIR__))), "code", "maps", "DATA", "INDIA_SHAPEFILES", "Districts_States_HR", "2011_Districts_State_HR.shp"))
         if isfile(contingency_shapefile_path)
             district_df[] = DataFrame(Shapefile.Table(contingency_shapefile_path))
-            district_df[].geometry = GeoMakie.geo2basic.(district_df[].geometry)
+            district_df[].geometry = GeoInterface.convert.((GeometryBasics,), district_df[].geometry)
             # apply certain patches here
             district_df[][302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
             district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name # 104
