@@ -15,9 +15,9 @@ function merge_polys(polys::AbstractVector)
 
     # first, operate on the simplest cases
     if length(polys) == 1
-        return convert(GeometryBasics.MultiPolygon, GeoMakie.geo2basic(polys[1]))
+        return convert(GeometryBasics.MultiPolygon, GeoInterface.convert(GeometryBasics, polys[1]))
     elseif length(polys) == 2
-        return convert(GeometryBasics.MultiPolygon, GeoMakie.geo2basic(ArchGDAL.union(arch_polys...)))
+        return convert(GeometryBasics.MultiPolygon, GeoInterface.convert(GeometryBasics, ArchGDAL.union(arch_polys...)))
     end
 
     # create one master polygon for the others to merge into
@@ -27,7 +27,7 @@ function merge_polys(polys::AbstractVector)
         master_poly = ArchGDAL.union(master_poly, poly)
     end
 
-    converted = GeoInterface.convert(GeometryBasics, GeoMakie.geo2basic(master_poly))
+    converted = GeoInterface.convert(GeometryBasics, GeoInterface.convert(GeometryBasics, master_poly))
     if converted isa GeometryBasics.Polygon
         return GeometryBasics.MultiPolygon([converted])
     elseif converted isa GeometryBasics.MultiPolygon
@@ -97,7 +97,7 @@ function load_karmana_geom_resources()
     # .(src)/..(Karmana.jl)/..(dev)/code/maps/DATA/...
     india_shapefiles_folder = (abspath(joinpath(dirname(dirname(dirname(@__DIR__))), "code", "maps", "DATA", "INDIA_SHAPEFILES")))
     district_df = Shapefile.Table(joinpath(india_shapefiles_folder, "Districts_States_HR", "2011_Districts_State_HR.shp")) |> DataFrame
-    district_df.geometry = GeoMakie.geo2basic.(district_df.geometry)
+    district_df.geometry = GeoInterface.convert.((GeometryBasics,), district_df.geometry)
     # apply patches to known issues in districts
     district_df[302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
     district_df[413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name
