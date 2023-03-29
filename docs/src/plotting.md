@@ -1,4 +1,4 @@
-# The Karmana.jl API
+# The Karmana.jl plotting API
 
 
 ```@index

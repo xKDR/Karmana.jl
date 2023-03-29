@@ -115,7 +115,7 @@ end
 
  
 # Projection stuff
-
+# remove once Proj's PR for this hits
 function do_transform(trans::Proj.Transformation, poly::GeometryBasics.MultiPolygon)
     return GeometryBasics.MultiPolygon(do_transform.((trans,),poly.polygons))
 end

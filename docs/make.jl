@@ -19,7 +19,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "API" => "api.md",
+        "Plotting" => "plotting.md",
+        "CPHS" => "cphs.md",
+        "CapEx" => "capex.md",
         # "Examples" => [
         #     "Basic Usage" => "examples/demo.md",
         #     "Ternary colormaps" => "examples/ternary_colormap.md",
