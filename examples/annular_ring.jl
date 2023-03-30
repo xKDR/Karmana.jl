@@ -38,16 +38,27 @@ end
 # ![](modis_vegetation_over_delhi.mp4)
 # Now, for the annular ring!
 # We can easily get the vegetation data over Delhi for a ring between 4 and 15 km from the center:
-vegetation_series = Karmana.annular_ring(modis_2d_series, delhi_lonlat..., 15000, 4000; pass_mask_size = true) do raster, mask_size
+vegetation_series = Karmana.annular_ring(modis_raster, delhi_lonlat..., 15000, 4000; pass_mask_size = true) do raster, mask_size
     ## We can do some processing here, if we want to.
     ## For now, we just take the mean of all points in the mask.
     sum(raster) / mask_size
 end
 # This is what the timeseries looks like!
-lines(Dates.value.(collect(dims(modis_2d_series)[1])) .- Dates.value(Date(2022, 1, 1)), vegetation_series; axis = (title = "Vegetation over time in Delhi", ylabel = "Mean vegetation index", xlabel = "Days since start of year"))
+f, a, p = lines(
+    Dates.value.(collect(dims(modis_2d_series)[1])) .- Dates.value(Date(2022, 1, 1)), # Makie doesn't support Date axes yet, this is the best we can do.
+    vegetation_series; 
+    axis = (
+        title = "Vegetation over time in Delhi", 
+        ylabel = "Mean vegetation index", 
+        xlabel = "Month",
+        xticks = (collect(Dates.value.((Date(1):Month(1):Date(2))[1:12])), Dates.monthname.(1:12)), # more hacks for a "month axis"
+        xticklabelrotation = π/4,
+    ),
+    label = "2022"
+)
 
-# For an encore, let's animate what we see in the annular ring.
-fig, ax, hm = heatmap(modis_2d_series[1]; axis = (; aspect = DataAspect()))
+# For an encore, let's animate what the `annular_ring` function lets you process:.
+"fig, ax, hm = heatmap(modis_2d_series[1]; axis = (; aspect = DataAspect()))
 record(fig, "modis_annular_rings.mp4", Date(2022, 1, 1):Day(1):Date(2022, 12, 31); framerate = 30) do date
     ax.title[] = string(date)
     Karmana.annular_ring(modis_interpolated(Dates.value(date)), delhi_lonlat..., 15000, 4000; pass_mask_size = false) do raster
