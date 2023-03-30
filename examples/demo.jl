@@ -158,6 +158,3 @@ fig
 
 # ## TODOs
 # - Change the raster example here to plot data from BioClim
-# - Add a `create_page` example with a colorbar
-# - Add a `create_page` example with a legend
-# - Add a `create_page` example with a title and description
