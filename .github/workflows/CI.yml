@@ -65,6 +65,7 @@ jobs:
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "MakieCore", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "CairoMakie", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/JuliaGeo/Proj.jl", rev = "as/geodesics"),
               Pkg.PackageSpec(path = ".", name = "Karmana"),
           ])'      
       - run: |
@@ -76,6 +77,7 @@ jobs:
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "MakieCore", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/Makie.jl", subdir = "CairoMakie", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
+              Pkg.PackageSpec(url = "https://github.com/JuliaGeo/Proj.jl", rev = "as/geodesics"),              
           ])'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-docdeploy@v1
