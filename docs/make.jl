@@ -23,7 +23,7 @@ end
 
 # Special-case the capex example
 rm(joinpath(@__DIR__, "src", "examples", "annular_ring.md"), force = true)
-Literate.markdown(joinpath(@__DIR__ |> dirname, "examples", "capex.jl"), joinpath(@__DIR__, "src", "examples"); documenter = true)
+Literate.markdown(joinpath(dirname(@__DIR__), "examples", "capex.jl"), joinpath(@__DIR__, "src", "examples"); documenter = true)
 
 makedocs(;
     modules=[Karmana],

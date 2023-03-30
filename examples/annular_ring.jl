@@ -20,7 +20,7 @@ modis_2d_series = RasterSeries(view.(modis_series, :, :, 1), dims(modis_series).
 # We can actually concatenate these into a single raster, which we'll do here:
 modis_raster = cat(modis_2d_series..., dims = dims(modis_2d_series)[1])
 # We now have a proper 3D raster!  Let's do a quick animation to see how it looks:
-fig, ax, hm = heatmap(modis_raster[:, :, 1], axis = (; aspect = DataAspect()))
+fig, ax, hm = heatmap(modis_raster[:, :, 1], colorrange = (0, Makie.PlotUtils.zscale(modis_raster)[end]), axis = (; aspect = DataAspect()))
 cb = Colorbar(fig[1, 2], hm; label = "Vegetation index")
 fig
 # We can interpolate the RasterSeries for a better animation:
@@ -28,6 +28,9 @@ using DataInterpolations: QuadraticInterpolation
 modis_interpolated = QuadraticInterpolation(modis_2d_series, Dates.value.(collect(dims(modis_2d_series)[1])))
 modis_interpolated(Dates.value(Date(2022, 5, 1)))
 # Let's make a video of this:
+
+fig, ax, hm = heatmap(modis_interpolated(1.0), colorrange = (0, Makie.PlotUtils.zscale(modis_raster)[end]), axis = (; aspect = DataAspect()))
+cb = Colorbar(fig[1, 2], hm; label = "Vegetation index")
 record(fig, "modis_vegetation_over_delhi.mp4", Date(2022, 1, 1):Day(1):Date(2022, 12, 31); framerate = 30) do date
     hm[3][] = Makie.convert_arguments(Makie.ContinuousSurface(), modis_interpolated(Dates.value(date)))[3]
     ax.title = string(date)
