@@ -17,10 +17,17 @@ using Makie.Colors
 # You must provide the page size you want to the function, as a Symbol (:a4-:a0 are supported for now).
 page = create_page(:a4)
 
+# `page` is a NamedTuple with several elements, you can see the description of each in the documentation for [`create_page`](@ref).
+
+# To access the actual figure object, use `page.figure`.
+page.figure
+
 # By default, the `create_page` function creates only one axis.  It returns all axes as a matrix, 
 # so that it's easy and intuitive to refer to them in a grid.
+page.axes
 
 # ## Plotting using `indiaoutline!`
+
 # The `IndiaOutline` plot type was designed specifically for CPHS state, HR, or district level data,
 # and automates a lot of the data munging you may have to do otherwise.
 # You can call it in one of the following ways:
@@ -39,13 +46,13 @@ outline_plt = indiaoutline!(
 )
 # Now, we display the page again (assuming you're using CairoMakie, graphs do not update interactively)
 
-page
+page.figure
 
 # You can alter the attributes of an `IndiaOutline` plot after the fact, using the standard Makie attribute updating syntax.
 # For example, you can change the colormap like this:
 outline_plt.plots[2].colormap[] = :Oranges
 
-page
+page.figure
 
 # You can also change the attributes of the `IndiaOutline` plot itself, like this:
 # (note the nested attributes here, if you want to know more, read the docstring).
@@ -55,7 +62,7 @@ outline_plt.HR.strokewidth[]       = 0.2 #* 2 * 2
 outline_plt.HR.strokecolor[]       = to_color(:blue)
 outline_plt.District.strokewidth[] = 0.1
 
-page
+page.figure
 
 
 # There's also a description, and you might note the space between that 
@@ -68,7 +75,7 @@ cb = Colorbar(
     vertical = false               # this sets the colorbar's orientation to be horizontal
 )
 
-page
+page.figure
 
 # this is how to save a page object, if you want to
 # `save("my_map.png", page.figure; px_per_unit = 3)`
@@ -79,34 +86,36 @@ page
 # specific behaviour can be changed on the basis of paper size.
 
 page = create_page(:a4; landscape = true)
+page.figure
 # You can define a set number of axes, and they will be arranged in a grid.
 page = create_page(:a4; naxes = 2)
+page.figure
+
 # Alternatively, you can also define the number of rows and columns.
 page = create_page(:a4; naxes = (2, 3))
+page.figure
+
 # There are multiple options for paper size, ranging from a4 to a0.
 page = create_page(:a3)
+page.figure
 
-
+# You can set any axis attribute like so:
 page = create_page(:a3; landscape = false, naxes = 4)
 setproperty!.(page.axes, :aspect, (DataAspect(),))
-page
-# 
+page.figure
+
+# Here's what the page looks like with India plotted on each axis!
 indiaoutline!.(page.axes, (:State,), (:all,))
-page
+page.figure
 
 # The function is integrated well with Makie's themes,
 # and we could make our own for e.g. BQ or BS, following their style.
 
 # Any plots on this new page follow the theme with which it was created.
 
-with_theme(theme_black()) do
+page = with_theme(theme_black()) do
     create_page(:a3)
 end
-
-
-# TODO: resurrect the `draw_boxes` function
-# This is what the layout looks like:
-# draw_boxes(page.figure.layout)
 page.figure
 
 
@@ -147,7 +156,8 @@ indiaoutline!(ax, :State, :all; merge_column = :st_nm, external_merge_column = :
 fig
 # This is clearly unrealistic, but otherwise correct!
 
-
-# TODOs:
-# - [ ] Add a `draw_boxes` function to draw boxes around the layout cells
-# - [ ] Change the raster example to use Rasters.jl data from BioClim.
+# ## TODOs
+# - Change the raster example here to plot data from BioClim
+# - Add a `create_page` example with a colorbar
+# - Add a `create_page` example with a legend
+# - Add a `create_page` example with a title and description
