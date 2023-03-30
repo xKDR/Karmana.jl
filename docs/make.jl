@@ -18,12 +18,12 @@ cp(joinpath(dirname(@__DIR__), "README.md"), joinpath(@__DIR__, "src", "index.md
 example_files = readdir(joinpath(dirname(@__DIR__), "examples"); join = true)
 
 for example_file in example_files
-    Literate.markdown(example_file, joinpath(@__DIR__, "src", "examples"); documenter = false) # TODO change this to true
+    Literate.markdown(example_file, joinpath(@__DIR__, "src", "examples"); documenter = true) # TODO change this to true
 end
 
 # Special-case the capex example
-rm(joinpath(@__DIR__, "src", "examples", "annular_ring.md"), force = true)
-Literate.markdown(joinpath(dirname(@__DIR__), "examples", "capex.jl"), joinpath(@__DIR__, "src", "examples"); documenter = true)
+# rm(joinpath(@__DIR__, "src", "examples", "annular_ring.md"), force = true)
+# Literate.markdown(joinpath(dirname(@__DIR__), "examples", "capex.md"), joinpath(@__DIR__, "src", "examples"); documenter = true)
 
 makedocs(;
     modules=[Karmana],
