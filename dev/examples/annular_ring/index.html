@@ -10,15 +10,27 @@ cb = Colorbar(fig[1, 2], hm; label = &quot;Vegetation index&quot;)
 record(fig, &quot;modis_vegetation_over_delhi.mp4&quot;, Date(2022, 1, 1):Day(1):Date(2022, 12, 31); framerate = 30) do date
     hm[3][] = Makie.convert_arguments(Makie.ContinuousSurface(), modis_interpolated(Dates.value(date)))[3]
     ax.title = string(date)
-end</code></pre><p><video src="modis_vegetation_over_delhi.mp4" controls="true" title><a href="modis_vegetation_over_delhi.mp4"></a></video> Now, for the annular ring! We can easily get the vegetation data over Delhi for a ring between 4 and 15 km from the center:</p><pre><code class="language- hljs">vegetation_series = Karmana.annular_ring(modis_2d_series, delhi_lonlat..., 15000, 4000; pass_mask_size = true) do raster, mask_size
+end</code></pre><p><video src="modis_vegetation_over_delhi.mp4" controls="true" title><a href="modis_vegetation_over_delhi.mp4"></a></video> Now, for the annular ring! We can easily get the vegetation data over Delhi for a ring between 4 and 15 km from the center:</p><pre><code class="language- hljs">vegetation_series = Karmana.annular_ring(modis_raster, delhi_lonlat..., 15000, 4000; pass_mask_size = true) do raster, mask_size
     # We can do some processing here, if we want to.
     # For now, we just take the mean of all points in the mask.
     sum(raster) / mask_size
-end</code></pre><p>This is what the timeseries looks like!</p><pre><code class="language- hljs">lines(Dates.value.(collect(dims(modis_2d_series)[1])) .- Dates.value(Date(2022, 1, 1)), vegetation_series; axis = (title = &quot;Vegetation over time in Delhi&quot;, ylabel = &quot;Mean vegetation index&quot;, xlabel = &quot;Days since start of year&quot;))</code></pre><p>For an encore, let&#39;s animate what we see in the annular ring.</p><pre><code class="language- hljs">fig, ax, hm = heatmap(modis_2d_series[1]; axis = (; aspect = DataAspect()))
+end</code></pre><p>This is what the timeseries looks like!</p><pre><code class="language- hljs">f, a, p = lines(
+    Dates.value.(collect(dims(modis_2d_series)[1])) .- Dates.value(Date(2022, 1, 1)), # Makie doesn&#39;t support Date axes yet, this is the best we can do.
+    vegetation_series;
+    axis = (
+        title = &quot;Vegetation over time in Delhi&quot;,
+        ylabel = &quot;Mean vegetation index&quot;,
+        xlabel = &quot;Month&quot;,
+        xticks = (collect(Dates.value.((Date(1):Month(1):Date(2))[1:12])), Dates.monthname.(1:12)), # more hacks for a &quot;month axis&quot;
+        xticklabelrotation = π/4,
+    ),
+    label = &quot;2022&quot;
+)</code></pre><p>For an encore, let&#39;s animate what the <code>annular_ring</code> function lets you process:.</p><pre><code class="language- hljs">fig, ax, hm = heatmap(modis_2d_series[1]; colorrange = (0, Makie.PlotUtils.zscale(modis_raster)[end]), axis = (; aspect = DataAspect()))
+cb = Colorbar(fig[1, 2], hm)
 record(fig, &quot;modis_annular_rings.mp4&quot;, Date(2022, 1, 1):Day(1):Date(2022, 12, 31); framerate = 30) do date
     ax.title[] = string(date)
     Karmana.annular_ring(modis_interpolated(Dates.value(date)), delhi_lonlat..., 15000, 4000; pass_mask_size = false) do raster
         # Here, we don&#39;t actually do any processing, just visualize the premultiplied raster!
         hm[3][] = Makie.convert_arguments(Makie.ContinuousSurface(), raster)[3]
     end
-end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../geodesic/">« Capex geodesic utilities</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 30 March 2023 07:43">Thursday 30 March 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><p><video src="modis_annular_rings.mp4" controls="true" title><a href="modis_annular_rings.mp4"></a></video></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../geodesic/">« Capex geodesic utilities</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 30 March 2023 08:54">Thursday 30 March 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
