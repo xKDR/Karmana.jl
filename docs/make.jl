@@ -43,7 +43,7 @@ makedocs(;
         "CapEx" => "capex.md",
         "Examples" => [
             "Basic Usage" => "examples/demo.md",
-            "Capex geographic utilities" => "examples/capex.md",
+            "Capex geodesic utilities" => "examples/geodesic.md",
             "Annular rings on Rasters" => "examples/annular_ring.md"
         #     "Ternary colormaps" => "examples/ternary_colormap.md",
         ],
