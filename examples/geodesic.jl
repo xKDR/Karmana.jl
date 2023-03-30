@@ -20,8 +20,6 @@ poly_line = Karmana.line_to_geodetic_width_poly(Point2f.(LinRange(0, 6, 100), si
 poly(poly_line; axis = (; aspect = DataAspect()))
 
 
-
-
 # Rasters.rasterize works on this polygon!
 annular_polygon = Makie.GeometryBasics.Polygon(
     Karmana.get_geodetic_circle(72, 50, 90000), 
@@ -34,7 +32,7 @@ poly(annular_polygon; axis = (; aspect = DataAspect()))
 
 # Let's get the nightlights data for India, and calculate their nightlights over time.
 
-using CSV, DataFrames
+using CSV, DataFrames, Statistics
 
 nightlights_raster = view(Raster("/Users/anshul/Documents/Business/India/XKDR/code/maps/DATA/updated_india.nc"; lazy = true), :, :, 1, :)
 
@@ -50,8 +48,13 @@ sort!(india_cities, :population; order = Base.Reverse)
 
 # Top 8 cities in India by population
 india_cities.city_positions = Point2{Float64}.(india_cities[!, :lng], india_cities[!, :lat])
-using Statistics
-lights_from_ring = Karmana.annular_ring.((Statistics.mean,), (view(nightlights_raster, :, :, i) for i in 1:size(nightlights_raster, 3)), india_cities.city_positions[1]..., 15000, 3000)
+
+one_light_from_ring = Karmana.annular_ring.(Statistics.mean, view(nightlights_raster, :, :, 1), india_cities.city_positions[1]... #= lon, lat=#, 15000, 3000)
+
+lights_from_ring = Karmana.annular_ring.(Statistics.mean, nightlights_raster, india_cities.city_positions[1]..., 15000, 3000)
+
+# plot
+
 f, a, p = lines(lights_from_ring, label = "Mean radiance", axis = (; title = "Mean nighttime light radiance around Mumbai over time", xlabel = "Time (months)", ylabel = "Radiance"))
 axislegend(a, position = :lt)
 a.title = "Mean nighttime light radiance around Delhi over time"
