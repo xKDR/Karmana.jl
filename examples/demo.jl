@@ -1,9 +1,6 @@
-# Preliminary setup
-# Activate the correct environment
-using Pkg; Pkg.activate(@__DIR__)
 # Set an environment variable which tells Karmana.jl, when loaded, to utilize the 
 # `maps/DATA` india shapefile, instead of having it get that from the database.
-ENV["KARMANA_DISTRICT_SHAPEFILE"] = joinpath(dirname(dirname(@__DIR__)), "DATA", "INDIA_SHAPEFILES", "Districts_States_HR", "2011_Districts_State_HR.shp")
+# ENV["KARMANA_DISTRICT_SHAPEFILE"] = joinpath(dirname(dirname(@__DIR__)), "DATA", "INDIA_SHAPEFILES", "Districts_States_HR", "2011_Districts_State_HR.shp")
 
 
 using Karmana
@@ -92,6 +89,8 @@ page = create_page(:a3)
 
 page = create_page(:a3; landscape = false, naxes = 4)
 setproperty!.(page.axes, :aspect, (DataAspect(),))
+page
+# 
 indiaoutline!.(page.axes, (:State,), (:all,))
 page
 
