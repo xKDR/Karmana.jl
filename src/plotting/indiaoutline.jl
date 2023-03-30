@@ -185,6 +185,7 @@ function Makie.plot!(plot::IndiaOutline)
             
             merged_df = merge_method(Karmana.state_df[], df_to_merge; on = merge_column, matchmissing = :equal)
             dropmissing!(merged_df, :geometry)
+            state_geoms[] = merged_df.geometry
             state_colors[] = map(x -> ismissing(x) ? nan_color : x, merged_df[!, value_colname])
             merge_codes = unique(merged_df[!, external_merge_column])
             hr_geoms.val = filter(external_merge_column => Base.Fix2(_missing_in, merge_codes), Karmana.hr_df[]; view = false)[:, :geometry]
@@ -258,12 +259,12 @@ function Makie.plot!(plot::IndiaOutline)
     else
         @error "Admin level $admin_level not known - must be one of `:State`, `:HR`, or `:District`."
     end
-    notify(plot[2])
+    notify(plot.converted[2])
 
     state_plot    = poly!(plot, plot.State, state_geoms; color = state_colors, colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip)
     hr_plot       = poly!(plot, hr_geoms; color = hr_colors, colorrange = get(plot, :colorrange, (0, 1)), colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip, plot.HR...)
     district_plot = poly!(plot, district_geoms; color = district_colors, colormap = plot.colormap, colorrange = get(plot, :colorrange, (0, 1)), highclip = plot.highclip, lowclip = plot.lowclip, plot.District...)
-    river_plot    = lines!(plot, GeoMakie.geo2basic(Karmana.india_rivers[]); inspectable = false, xautolimits = false, yautolimits = false, plot.River...)
+    river_plot    = lines!(plot, GeoInterface.convert(GeometryBasics, Karmana.india_rivers[]); inspectable = false, xautolimits = false, yautolimits = false, plot.River...)
 
 
     on(Base.Fix1(_set_plot_z, state_plot), plot.State.zlevel; update = true)
