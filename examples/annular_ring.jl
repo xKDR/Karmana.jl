@@ -58,7 +58,8 @@ f, a, p = lines(
 )
 
 # For an encore, let's animate what the `annular_ring` function lets you process:.
-"fig, ax, hm = heatmap(modis_2d_series[1]; axis = (; aspect = DataAspect()))
+fig, ax, hm = heatmap(modis_2d_series[1]; colorrange = (0, Makie.PlotUtils.zscale(modis_raster)[end]), axis = (; aspect = DataAspect()))
+cb = Colorbar(fig[1, 2], hm)
 record(fig, "modis_annular_rings.mp4", Date(2022, 1, 1):Day(1):Date(2022, 12, 31); framerate = 30) do date
     ax.title[] = string(date)
     Karmana.annular_ring(modis_interpolated(Dates.value(date)), delhi_lonlat..., 15000, 4000; pass_mask_size = false) do raster
@@ -66,3 +67,4 @@ record(fig, "modis_annular_rings.mp4", Date(2022, 1, 1):Day(1):Date(2022, 12, 31
         hm[3][] = Makie.convert_arguments(Makie.ContinuousSurface(), raster)[3]
     end
 end
+# ![](modis_annular_rings.mp4)
