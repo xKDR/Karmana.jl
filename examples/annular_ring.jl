@@ -1,3 +1,9 @@
+# Annular rings with Rasters.jl
+
+# This tutorial is not meant to show a true usecase, rather
+# to show what you can do with the `annular_ring` function
+# and a couple other nice tools.  
+
 using Rasters, Dates
 using Karmana # provides `annular_ring` and friends
 using CairoMakie

@@ -26,11 +26,6 @@ Pkg.add(url = "https://github.com/xKDR/Karmana.jl")
 
 To add a specific branch or tag, provide the `rev = "branch_name"` keyword argument.
 
-Some functionality requires access to the xKDR maps database.  This can take one of two forms:
-- Database credentials encoded in the environment variables `"MAPS_USER"` and `"MAPS_PASSWORD"`.
-- A shapefile whose location is indicated by the environment variable `"KARMANA_DISTRICT_SHAPEFILE"`.\
-You can either set these before loading Karmana.jl, or call `Karmana.__init__()` after setting it to reset the `state_df`, `hr_df`, and `district_df` global variables (described below).
-
 ## Usage
 
 Karmana.jl implements several orthogonal functions.  For more information, please see the documentation API page, or by running `?funcname` in the REPL to access Julia's help mode.
@@ -52,5 +47,19 @@ All of these variables are populated by `Karmana.__init__()`, and can their valu
 
 ### CPHS helper functions
 
+Karmana has several CPHS helper functions to parse data.
+
 ### Capex helper functions
 
+Karmana has some parsers for CMIE Capex data lat/long strings.
+
+### Spatial utilities
+
+Karmana has some geodetic/spatial utilities, like `annular_ring` and `line_to_geodetic_width_poly`.  See the docs and examples for more information!
+
+## Environment variables
+
+Karmana can be configured by the following environment variables:
+- `KARMANA_DISTRICT_SHAPEFILE` which points to a shapefile which Karmana should use to populate the district, HR and state dataframes.  Note that there are a lot of assumptions made on the structure of the shapefile - look at the code of `Karmana.__init__()` to see what these are.
+- `KARMANA_APPLY_SHAPEFILE_PATCHES` indicates whether to apply certain patches to the shapefile (`"true"`) or not (`"false"`).  Defaults to true.
+- `KARMANA_RIVER_SHAPEFILE` indicates the path to some shapefile which contains a selection of rivers (usually as linestrings).  If not found, Karmana will download this data from UNESCO.

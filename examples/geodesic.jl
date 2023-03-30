@@ -14,10 +14,9 @@ cent_plot = scatter!(ax, [Point2f(72, 50)])
 fig
 
 # Geodetically expanding lines - equal physical width lines
-poly_line = Karmana.line_to_geodetic_width_poly(initial_line, 2000)
-poly_line = Karmana.line_to_geodetic_width_poly(Point2f.(LinRange(0, 6, 100), sin.(LinRange(0, 6, 100))), 2000)
+poly_line = Karmana.line_to_geodetic_width_poly(Point2f.(LinRange(0, 12, 100), 50 .* sin.(LinRange(0, 12, 100))), 20_000)
 
-poly(poly_line; axis = (; aspect = DataAspect()))
+poly(poly_line; aspect = DataAspect())
 
 
 # Rasters.rasterize works on this polygon!
@@ -27,6 +26,8 @@ annular_polygon = Makie.GeometryBasics.Polygon(
     )
 
 poly(annular_polygon; axis = (; aspect = DataAspect()))
+
+# You can see how the ring was warped because of its latitude.
 
 # These are the building blocks for the annular ring and geodetic utilities which Karmana exposes.
 # ```julia
