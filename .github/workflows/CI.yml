@@ -56,6 +56,9 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
+      - uses: julia-actions/cache@v1
+        with:
+          cache-artifacts: true
       - run: |
           julia --project=docs -e 'using Pkg; Pkg.add([
               Pkg.PackageSpec(url = "https://github.com/rafaqz/Rasters.jl", rev = "main") ,
