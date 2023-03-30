@@ -198,118 +198,116 @@ function create_page(
         apply_xkdr_theme ? theme_xkdr() : Attributes(),
     )
 
-    with_theme(theme) do
 
-        # Get the Figure's background color, then check it 
-        bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
-        # convert the background color to HSL, then check luminance.
-        if HSL(bg_color).l ≥ 0.4 || alpha(bg_color) ≤ 0.3# light theme
-            xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_Full_Colour.png")))
-            qr_code_colormap = [colorant"black", colorant"white"]
-        else # dark theme
-            xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_White_Coral.png")))
-            qr_code_colormap = Makie.to_color.([colorant"white", bg_color])
-        end
+    # Get the Figure's background color, then check it 
+    bg_color = Makie.to_color(Makie.to_value(get(theme, :backgroundcolor, RGBf(1,1,1))))
+    # convert the background color to HSL, then check luminance.
+    if HSL(bg_color).l ≥ 0.4 || alpha(bg_color) ≤ 0.3# light theme
+        xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_RGB_Full_Colour.png")))
+        qr_code_colormap = [colorant"black", colorant"white"]
+    else # dark theme
+        xkdr_logo_image = rotr90(FileIO.load(assetpath("logos", "XKDR_Logomark_White_Coral.png")))
+        qr_code_colormap = Makie.to_color.([colorant"white", bg_color])
+    end
 
-        figure = prepare_page(
+    figure = with_theme(theme) do
+        prepare_page(
             paper_size, qr_code_link;
             logo = xkdr_logo_image,
             landscape, padding,
             get(theme, :Page, (;))...
         )
-
-        # adjust the QR code for background color
-        figure.scene.plots[2].colormap = qr_code_colormap
-        supertitle_layout = GridLayout(figure[1, 1], 1, 3; tellheight = true, tellwidth = false)
-        # first, create the supertitle
-        supertitle = Label(
-            supertitle_layout[1, 2];
-            theme.Supertitle...,
-            text = supertitle,
-            tellwidth = false,
-        )
-
-        # in order to ensure that the supertitle never crosses the logo, we can add a box of zero height
-        logo_avoidance_box_left = Box(supertitle_layout[1, 1];
-            strokevisible = false,
-            color = :transparent,
-            tellwidth = true,
-            tellheight = false,
-            width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
-                Fixed((logo_x_extents.right - logo_x_extents.left) + 2 * padding)
-            end
-        )
-        logo_avoidance_box_right = Box(supertitle_layout[1, 3];
-            strokevisible = false,
-            color = :transparent,
-            tellwidth = true,
-            tellheight = false,
-            width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
-                Fixed((logo_x_extents.right - logo_x_extents.left) + 2 * padding)
-            end
-        )
-
-        # create a sub grid layout in which all the axes will lie
-
-        axis_layout = GridLayout(figure[2, 1], axis_nrows, axis_ncols)
-
-        # create a matrix to hold the axes, nothing means there is no axis there
-        axes = Matrix{Union{Makie.Axis, Nothing}}(undef, axis_nrows, axis_ncols)
-        axes .= nothing
-
-        _stop = false
-
-        for i in 1:axis_nrows
-            for j in 1:axis_ncols
-                if (i-1) * axis_ncols + j > prod(naxes)
-                    _stop = true
-                    break
-                else
-                    axes[i, j] = Axis(axis_layout[i, j]; title = axistitles[j + (i-1) * axis_ncols], aspect = axisaspect)
-                    hideaxisdecorations && hidedecorations!(axes[i, j])
-                    hideaxisspines && hidespines!(axes[i, j])
-                end
-            end
-            _stop && break # break if we have finished drawing all plots.
-        end
-
-        # create the description layout
-        description_layout = GridLayout(figure[4, 1], 1, 3)
-
-        qr_code_plot = figure.scene.plots[2]
-
-        # the rightmost item is just a `Box` which makes sure the QR code is avoided.
-        qr_avoidance_box = Box(
-            description_layout[1, 3];
-            strokevisible = false,
-            color = :transparent,
-            tellwidth = true,
-            tellheight = false,
-            width = lift(qr_code_plot.input_args[1], qr_code_plot.input_args[2]) do qr_x_extents, qr_y_extents
-                Fixed((qr_x_extents.right - qr_x_extents.left) + 2 * padding)
-            end
-        )
-
-        # now, we create the description label
-        description_label = Label(
-            description_layout[1, 1];
-            theme.DescriptionLabel..., 
-            text = description,
-        )
-
-        # set the max size we want the colorbar to be
-
-        colsize!(description_layout, 2, Relative(0.3))
-
-
-        # in order to make sure that the description layout takes the minimum
-        # amount of space, we need to add a zero-width row to the layout.
-        # This basically just ensures that the description items don't "float up".
-        rowsize!(figure.layout, 3, 0)
-
-        return (; figure, supertitle, axis_layout, axes, description_layout, description_label)
     end
-    
+    # adjust the QR code for background color
+    figure.scene.plots[2].colormap = qr_code_colormap
+    supertitle_layout = GridLayout(figure[1, 1], 1, 3; tellheight = true, tellwidth = false)
+    # first, create the supertitle
+    supertitle = Label(
+        supertitle_layout[1, 2];
+        theme.Supertitle...,
+        text = supertitle,
+        tellwidth = false,
+    )
+
+    # in order to ensure that the supertitle never crosses the logo, we can add a box of zero height
+    logo_avoidance_box_left = Box(supertitle_layout[1, 1];
+        strokevisible = false,
+        color = :transparent,
+        tellwidth = true,
+        tellheight = false,
+        width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
+            Fixed((logo_x_extents.right - logo_x_extents.left))
+        end
+    )
+    logo_avoidance_box_right = Box(supertitle_layout[1, 3];
+        strokevisible = false,
+        color = :transparent,
+        tellwidth = true,
+        tellheight = false,
+        width = lift(figure.scene.plots[1].input_args[1], figure.scene.plots[1].input_args[2]) do logo_x_extents, logo_y_extents
+            Fixed((logo_x_extents.right - logo_x_extents.left))
+        end
+    )
+
+    # create a sub grid layout in which all the axes will lie
+
+    axis_layout = GridLayout(figure[2, 1], axis_nrows, axis_ncols)
+
+    # create a matrix to hold the axes, nothing means there is no axis there
+    axes = Matrix{Union{Makie.Axis, Nothing}}(undef, axis_nrows, axis_ncols)
+    axes .= nothing
+
+    _stop = false
+
+    for i in 1:axis_nrows
+        for j in 1:axis_ncols
+            if (i-1) * axis_ncols + j > prod(naxes)
+                _stop = true
+                break
+            else
+                axes[i, j] = Axis(axis_layout[i, j]; title = axistitles[j + (i-1) * axis_ncols], aspect = axisaspect)
+                hideaxisdecorations && hidedecorations!(axes[i, j])
+                hideaxisspines && hidespines!(axes[i, j])
+            end
+        end
+        _stop && break # break if we have finished drawing all plots.
+    end
+
+    # create the description layout
+    description_layout = GridLayout(figure[4, 1], 1, 3)
+
+    qr_code_plot = figure.scene.plots[2]
+
+    # the rightmost item is just a `Box` which makes sure the QR code is avoided.
+    qr_avoidance_box = Box(
+        description_layout[1, 3];
+        strokevisible = false,
+        color = :transparent,
+        tellwidth = true,
+        tellheight = false,
+        width = lift(qr_code_plot.input_args[1], qr_code_plot.input_args[2]) do qr_x_extents, qr_y_extents
+            Fixed((qr_x_extents.right - qr_x_extents.left))
+        end
+    )
+
+    # now, we create the description label
+    description_label = Label(
+        description_layout[1, 1];
+        theme.DescriptionLabel..., 
+        text = description,
+    )
+
+    # set the max size we want the colorbar to be
+
+    colsize!(description_layout, 2, Relative(0.3))
+
+
+    # in order to make sure that the description layout takes the minimum
+    # amount of space, we need to add a zero-width row to the layout.
+    # This basically just ensures that the description items don't "float up".
+    rowsize!(figure.layout, 3, 0)
+
+    return (; figure, supertitle, axis_layout, axes, description_layout, description_label)
 end
 
 # Override Base.display for our returned NamedTuple,

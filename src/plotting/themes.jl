@@ -85,10 +85,6 @@ function theme_a3()
         Axis = (
             titlesize = 20,
         ),
-        Colorbar = (
-            # ticklabelsize = 0f0,
-            # labelsize = 0f0,
-        ),
         fontsize = 16,
     )
 end
