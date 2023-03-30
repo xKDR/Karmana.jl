@@ -67,6 +67,7 @@ jobs:
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/JuliaGeo/Proj.jl", rev = "as/geodesics"),
               Pkg.PackageSpec(url = "https://github.com/yeesian/ArchGDAL.jl", rev = "master"),
+              Pkg.PackageSpec(path = "../Karmana.jl", name = "Karmana")
           ])'      
       - run: |
           julia --project=. -e 'using Pkg; Pkg.add([
@@ -79,6 +80,7 @@ jobs:
               Pkg.PackageSpec(url = "https://github.com/MakieOrg/GeoMakie.jl", rev = "master"),
               Pkg.PackageSpec(url = "https://github.com/JuliaGeo/Proj.jl", rev = "as/geodesics"),
               Pkg.PackageSpec(url = "https://github.com/yeesian/ArchGDAL.jl", rev = "master"),
+              Pkg.PackageSpec(path = "../Karmana.jl", name = "Karmana")
           ])'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-docdeploy@v1
