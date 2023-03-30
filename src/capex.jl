@@ -214,13 +214,14 @@ function annular_ring(f::F, source::Raster{T, 3}, lon, lat, outer_radius, inner_
         [reverse(get_geodetic_circle(lon, lat, inner_radius))] # note the `reverse` here - this is for the intersection fill rule.
     )
     extent = GeoInterface.extent(annular_polygon)
-    examinable_raster = view(source, :, :, 1)[extent]
-    rasterized_polygon = Rasters.boolmask(annular_polygon, to = examinable_raster)
+    examinable_raster = source[extent]
+    rasterized_polygon = Rasters.boolmask(annular_polygon, to = view(examinable_raster, :, :, 1))
+    # Main.@infiltrate
     return if pass_mask_size
         mask_size = sum(rasterized_polygon)
-        map((x, y) -> f(x .* y, mask_size), view.((examinable_raster,), :, :, 1:size(examinable_raster, 3)), rasterized_polygon)
+        f.(broadcast((x, y) -> x .* y, eachslice(examinable_raster, dims = 3), (rasterized_polygon,)), (mask_size,)) |> collect
     else
-        map((x, y) -> f(x .* y), view.((examinable_raster,), :, :, 1:size(examinable_raster, 3)), rasterized_polygon)
+        f.(broadcast((x, y) -> x .* y, eachslice(examinable_raster, dims = 3), (rasterized_polygon,))) |> collect
     end
     # NOTE: to apply multithreading, replace `map` with e.g. `ThreadPools.qmap`
 end
