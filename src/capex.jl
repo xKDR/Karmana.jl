@@ -167,18 +167,21 @@ end
 #       Annular rings on rasters       #
 ########################################
 
-
 """
-    annular_ring(f, source::Raster, lon, lat, outer_radius, inner_radius)
+    annular_ring(f, source::Raster, lon, lat, outer_radius, inner_radius; pass_mask_size = false)
 
 Returns the result of applying `f` to the subset of `source` which is masked by the annular ring defined by `lon`, `lat`, `outer_radius`, `inner_radius`.
 The annular ring is constructed in geodetic space, i.e., distance is physically preserved.
+
+`source` may be a 2D raster (in which case this function returns a value), or a 3D RasterStack or a RasterSeries of 2D rasters, in which case this function returns a `Vector` of values.
 
 ## Arguments
 - `f` is a function which takes a `Raster` and returns a value.  This is the function which will be applied to the subset of `source` which is masked by the constructed annular ring. The result of `f` is returned.
 - `source` is a `Raster` which will be masked by the annular ring.  This can be 2D, in which case `annular_ring` will return a single value, or 3D, in which case `annular_ring` will return a `Vector` of values.
 - `lon`, `lat` are the coordinates of the centre of the annular ring, in degrees.
 - `outer_radius` and `inner_radius` are the outer and inner radii of the annular ring, in metres.
+
+- `pass_mask_size` determines whether to pass a second argument to `f` containing the number of points in the mask.  This is useful if you are taking statistical measures.
 
 ## How it works
 
@@ -189,7 +192,7 @@ The annular ring is constructed in geodetic space, i.e., distance is physically 
 - Finally, `f` is applied to the result of the multiplication.
 
 """
-function annular_ring(f::F, source::Raster{T, 2}, lon, lat, outer_radius, inner_radius; replace_missing = false) where {F, T}
+function annular_ring(f::F, source::Raster{T, 2}, lon, lat, outer_radius, inner_radius; pass_mask_size = false) where {F, T}
     annular_polygon = Makie.GeometryBasics.Polygon(
         get_geodetic_circle(lon, lat, outer_radius), 
         [reverse(get_geodetic_circle(lon, lat, inner_radius))] # note the `reverse` here - this is for the intersection fill rule.
@@ -197,17 +200,32 @@ function annular_ring(f::F, source::Raster{T, 2}, lon, lat, outer_radius, inner_
     extent = GeoInterface.extent(annular_polygon)
     examinable_raster = source[extent] # TODO: should this be replaced by `Rasters.crop(source, to = annular_polygon)`?
     rasterized_polygon = Rasters.boolmask(annular_polygon, to = examinable_raster)
-    return f(examinable_raster .* rasterized_polygon)
+    return if pass_mask_size
+        mask_size = sum(rasterized_polygon)
+        f(examinable_raster .* rasterized_polygon, mask_size)
+    else
+        f(examinable_raster .* rasterized_polygon)
+    end
 end
 
-function annular_ring(f::F, source::Raster{T, 3}, lon, lat, outer_radius, inner_radius; replace_missing = false) where {F, T}
+function annular_ring(f::F, source::Raster{T, 3}, lon, lat, outer_radius, inner_radius; pass_mask_size = false) where {F, T}
     annular_polygon = Makie.GeometryBasics.Polygon(
         get_geodetic_circle(lon, lat, outer_radius), 
         [reverse(get_geodetic_circle(lon, lat, inner_radius))] # note the `reverse` here - this is for the intersection fill rule.
     )
     extent = GeoInterface.extent(annular_polygon)
-    examinable_raster = source[extent]
+    examinable_raster = view(source, :, :, 1)[extent]
     rasterized_polygon = Rasters.boolmask(annular_polygon, to = examinable_raster)
-    return map((x, y) -> f(x .* y), view.((examinable_raster,), :, :, 1:size(examinable_raster, 3)), rasterized_polygon)
+    return if pass_mask_size
+        mask_size = sum(rasterized_polygon)
+        map((x, y) -> f(x .* y, mask_size), view.((examinable_raster,), :, :, 1:size(examinable_raster, 3)), rasterized_polygon)
+    else
+        map((x, y) -> f(x .* y), view.((examinable_raster,), :, :, 1:size(examinable_raster, 3)), rasterized_polygon)
+    end
     # NOTE: to apply multithreading, replace `map` with e.g. `ThreadPools.qmap`
+end
+
+# TODO: this assumes the axes of all rasters in the series are the same!
+function annular_ring(f::F, source::RasterSeries{<: Raster{T, 2}}, lon, lat, outer_radius, inner_radius; pass_mask_size = false) where {F, T}
+    return annular_ring.(f, collect(source), lon, lat, outer_radius, inner_radius ; pass_mask_size)
 end

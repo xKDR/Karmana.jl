@@ -1,6 +1,15 @@
 using Karmana
 using Documenter, Literate
 
+# on CI, set the raster data sources path to be cached!
+# This enables us to download a bunch of raster data,
+# and have it cached so it doesn't get re-downloaded.
+if haskey(ENV, "CI")
+    rasterdatasources_path = joinpath(DEPOT_PATH[1], "artifacts", "RasterDataSources")
+    mkpath(rasterdatasources_path)
+    ENV["RASTERDATASOURCES_PATH"] = rasterdatasources_path
+end
+
 DocMeta.setdocmeta!(Karmana, :DocTestSetup, :(using Karmana); recursive=true)
 
 # Use the README as the homepage
@@ -11,6 +20,10 @@ example_files = readdir(joinpath(dirname(@__DIR__), "examples"); join = true)
 for example_file in example_files
     Literate.markdown(example_file, joinpath(@__DIR__, "src", "examples"); documenter = false) # TODO change this to true
 end
+
+# Special-case the capex example
+rm(joinpath(@__DIR__, "src", "examples", "annular_ring.md"), force = true)
+Literate.markdown(joinpath(@__DIR__ |> dirname, "examples", "capex.jl"), joinpath(@__DIR__, "src", "examples"); documenter = true)
 
 makedocs(;
     modules=[Karmana],
@@ -30,6 +43,8 @@ makedocs(;
         "CapEx" => "capex.md",
         "Examples" => [
             "Basic Usage" => "examples/demo.md",
+            "Capex geographic utilities" => "examples/capex.md",
+            "Annular rings on Rasters" => "examples/annular_ring.md"
         #     "Ternary colormaps" => "examples/ternary_colormap.md",
         ],
     ],
