@@ -12,11 +12,11 @@ Visualize by calling `Makie.plot(tmap)`.
 """
 Base.@kwdef struct TernaryColormap
     "Holds the map from x-value to color."
-    xmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_red.csv"))
+    xmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_red.csv"))
     "Holds the map from y-value to color."
-    ymap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_green.csv"))
+    ymap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_green.csv"))
     "Holds the map from z-value to color."
-    zmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(joinpath(dirname(@__DIR__), "assets", "colormaps", "ternary", "perceptual_blue.csv"))
+    zmap::Makie.PlotUtils.ColorGradient = csv_to_cgrad(Karmana.assetpath("colormaps", "ternary", "perceptual_blue.csv"))
 end
 
 # function TernaryColormap(xmap, ymap, zmap)
