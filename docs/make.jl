@@ -46,8 +46,8 @@ makedocs(;
             "Basic Usage" => "examples/demo.md",
             "Creating a poster" => "examples/poster.md",
             "Capex geodesic utilities" => "examples/geodesic.md",
-            "Annular rings on Rasters" => "examples/annular_ring.md"
-        #     "Ternary colormaps" => "examples/ternary_colormap.md",
+            "Annular rings on Rasters" => "examples/annular_ring.md",
+            "Ternary colormaps" => "examples/ternary.md",
         ],
         "Developer documentation" => [
             "Autodocs" => "autodocs.md",
