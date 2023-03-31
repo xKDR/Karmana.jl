@@ -1,12 +1,11 @@
-# Set an environment variable which tells Karmana.jl, when loaded, to utilize the 
-# `maps/DATA` india shapefile, instead of having it get that from the database.
-# ENV["KARMANA_DISTRICT_SHAPEFILE"] = joinpath(dirname(dirname(@__DIR__)), "DATA", "INDIA_SHAPEFILES", "Districts_States_HR", "2011_Districts_State_HR.shp")
+# Basic demo
 
+# First, we'll load the packages.
 
 using Karmana
 using Makie, CairoMakie # backend for Makie.jl - necessary if you want to save a plot
 using Makie.Colors 
-# # Basic usage for Karmana
+
 # Before you run this code, make sure that you have 
 # read the Makie tutorial at docs.makie.org first!
 
@@ -48,6 +47,8 @@ outline_plt = indiaoutline!(
 
 page.figure
 
+# ### Dynamically updating attributes
+
 # You can alter the attributes of an `IndiaOutline` plot after the fact, using the standard Makie attribute updating syntax.
 # For example, you can change the colormap like this:
 outline_plt.plots[2].colormap[] = :Oranges
@@ -64,6 +65,7 @@ outline_plt.District.strokewidth[] = 0.1
 
 page.figure
 
+# ### Adding a colorbar
 
 # There's also a description, and you might note the space between that 
 # and the QR code, which is another layout cell which you can use 
@@ -120,6 +122,7 @@ page.figure
 
 
 # ## Handling raster data
+
 # Most raster data in Julia is handled by the `Raster` type from the [`Rasters.jl`](github.com/rafaqz/Rasters.jl) package.
 # Makie.jl supports plotting `Raster`s efficiently using the `heatmap` function; however, if you want to display your data
 # in 3D, you can also use `surface!`.  
