@@ -92,7 +92,7 @@ page.figure
 # ### Creating a colorbar
 
 # Let's also add a colorbar, to represent the color scale of the precipitation plot:
-cb = Colorbar(page.description_layout[1, 2], precipitation_plot; label = "Precip. (mm)", flipaxis = true)
+cb = Colorbar(page.description_layout[1, 2], precipitation_plot; label = "Precip. (mm)", flipaxis = true, tickalign = 1)
 page.figure
 
 page.description_label.alignmode[] = Outside()
@@ -137,6 +137,40 @@ leg.padding
 
 # This is in a (left, right, bottom, top) format, so
 leg.padding[] = (leg.padding[][1], leg.padding[][2], 0f0, leg.padding[][4])
+page.figure
+
+# ## Moving things around in the layout
+
+# You can move objects around the layout very easily.  Let's swap the colorbar with the description:
+page.description_layout[1, 1] = cb
+page.description_layout[1, 2] = page.description_label
+page.figure
+# This is a pretty cool thing, but the figure needs some tuning.
+colsize!(page.description_layout, 2, Auto())
+page.figure
+# Let's also spread the elements out evenly.  The way to do this is to add another column to the `description_layout`:
+page.description_layout[1, 4] = contents(page.description_layout[1, 3])[1]
+page.description_layout[1, 3] = leg
+page.figure
+
+# Let's also align the description to the bottom of the page,
+page.description_label.valign[] = :bottom
+page.figure
+
+# This isn't the most elegant solution, but you can have a colorbar label on the opposite side to the ticks.
+
+# We can do this by putting the colorbar into a new gridlayout, and the label below that:
+
+colorbar_layout = GridLayout(page.description_layout[1, 1])
+colorbar_layout[1, 1] = cb
+cb.label = ""
+cb_label = Label(colorbar_layout[2, 1], "Precip. (mm)", font = :bold)
+page.figure
+
+# Oops!  The label has squashed our colorbar.  Let's fix that, and decrease the spacing:
+cb_label.tellwidth = false
+cb_label.tellheight = true
+rowgap!(colorbar_layout, 1, 10)
 page.figure
 
 # ## Saving posters
