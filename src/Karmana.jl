@@ -51,7 +51,8 @@ include("plotting/poster_page.jl")
 export create_page
 
 include("plotting/ternary.jl")
-export TernaryColormap
+include("plotting/ternary_colorlegend.jl")
+export TernaryColormap, TernaryColorlegend
 
 include("plotting/indiaoutline.jl")
 export indiaoutline, indiaoutline!, IndiaOutline
