@@ -1,6 +1,6 @@
 [india_shapefile]
-git-tree-sha1 = "00f8ae61b41ed0ab58240ffbb0840b7f1b5fc3c4"
+git-tree-sha1 = "ff9d01e5a8150e637a1796d7d764859f6a01ed48"
 
     [[india_shapefile.download]]
-    sha256 = "d31884c73f890ca5e0bb9247dcf804d5acc92b5a070cf9168c4d9dd0639459f4"
-    url = "https://github.com/xKDR/india-maps/archive/refs/tags/v0.1.0.tar.gz"
+    sha256 = "c813b92f5ab230483b04d91760f54adafb569ae8cc2dce60616e76f9beccb8d1"
+    url = "https://github.com/xKDR/india-maps/archive/refs/tags/v0.2.0.tar.gz"

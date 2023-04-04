@@ -163,7 +163,7 @@ function __init__()
 
     if !has_india_data # no shapefile path, no maps db access ⟹ use the artifact!
         # WARNING: you have to change this path each version 
-        district_df[] = DataFrame(Shapefile.Table(joinpath(artifact"india_shapefile", "india-maps-0.1.0", "Districts", "2011_Districts_State_HR.shp")))
+        district_df[] = DataFrame(Shapefile.Table(joinpath(artifact"india_shapefile", "india-maps-0.2.0", "Districts", "2011_Districts_State_HR.shp")))
         # convert the geometry to GeometryBasics so it can be directly plotted and manipulated
         district_df[].geometry = GeoInterface.convert.((GeometryBasics,), district_df[].geometry)
         # apply certain patches here, if needed
@@ -190,15 +190,7 @@ function __init__()
     # iIf we can't find the file, regenerate from scratch.  This takes time.
     if !isfile(cached_rivers_file)
         @info "India's rivers were not cached, so we are regenerating them.  This may take a minute or so.  Only on first run!"
-        world_rivers_path = get(ENV, "KARMANA_RIVER_SHAPEFILE", joinpath(dirname(dirname(dirname(@__DIR__))), "code", "maps", "DATA", "INDIA_SHAPEFILES", "World_Rivers", "world_rivers.shp"))
-        if !isfile(world_rivers_path)
-            @warn "Rivers not found or environment variable not provided.  Downloading directly from UNESCO.]"
-            # TODO: let this download from
-            river_zipfile = Downloads.download("http://ihp-wins.unesco.org/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typename=geonode%3Aworld_rivers&outputFormat=SHAPE-ZIP&srs=EPSG%3A4326&format_options=charset%3AUTF-8")
-            temppath = mktempdir()
-            run(pipeline(`$(p7zip_jll.p7zip()) e $river_zipfile -o$temppath -y `, stdout = devnull, stderr = devnull))
-            world_rivers_path = joinpath(temppath, "world_rivers.shp")
-        end
+        world_rivers_path = joinpath(artifact"india_shapefile", "india-maps-0.2.0", "World_Rivers", "world_rivers.shp")
         # perform the operation
         india_rivers[] = prepare_merged_river_geom(
             world_rivers_path,

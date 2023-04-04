@@ -145,6 +145,8 @@ fig
 # This allows humans to more easily understand what's going on, instead of being led astray
 # by false trends in luminosity (see the many scathing reviews of Matlab's rainbow colormap for more info on this).
 
+# You can usually generate any colormap by using `PerceptuallyUniformColourmaps.equalisecolourmap` (note the British English spelling here).
+
 TernaryColormap(
     cgrad([:cyan, :black]),
     cgrad([:magenta, :black]),
