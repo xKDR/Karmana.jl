@@ -47,6 +47,7 @@ f
 
 # Then, we project them onto the ``x+y+z=1`` plane (this is normalizing to the ``L_1`` norm, which is effectively what I said earlier - ensuring that the sum of ``x``, ``y``, and ``z`` is 1.)
 
+using LinearAlgebra
 data = LinearAlgebra.normalize.(random_data, 1)
 
 scatter!(a, data; color = :red)
