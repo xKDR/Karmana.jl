@@ -28,15 +28,15 @@ Read nighttime lights data from a specific directory and return two raster serie
 - `end_date`: The end date (inclusive) of the period for which to load data. Should be an instance of `Date`. Default is `Date(2023, 01)`.
 
 # Returns
-Two `RasterSeries` instances. The first contains the radiance data, and the second contains the coverage data. Each `RasterSeries` includes data from the `start_date` to the `end_date`, sorted in ascending order.
-
+Two data cubes. The first contains the radiance data, and the second contains the coverage data. Each data cube includes data from the start_date to the end_date, sorted in ascending order.
 # Examples
 ```julia
+using Rasters
 xlims = X(Rasters.Between(65.39, 75.39))
 ylims = Y(Rasters.Between(5.34, 15.34))
 start_date = Date(2015, 01)
 end_date = Date(2020, 12)
-rad_series, cf_series = readnl(xlims, ylims, start_date, end_date)
+rad_dc, cf_dc = readnl(xlims, ylims, start_date, end_date)
 """
 function readnl(xlims = X(Rasters.Between(65.39, 99.94)), ylims = Y(Rasters.Between(5.34, 39.27)), start_date = Date(2012, 04), end_date = Date(2023, 01))
     lims = xlims, ylims
@@ -48,5 +48,7 @@ function readnl(xlims = X(Rasters.Between(65.39, 99.94)), ylims = Y(Rasters.Betw
     cf_raster_list = [Raster(i, lazy = true)[lims...] for i in cf_path .* cf_files]
     rad_series = RasterSeries(rad_raster_list, Ti(sorted_dates))
     cf_series = RasterSeries(cf_raster_list, Ti(sorted_dates))
+    rad_datacube = Rasters.combine(rad_series, Ti)
+    cf_datacube = Rasters.combine(cf_series, Ti)
 end
 
