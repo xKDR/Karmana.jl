@@ -38,6 +38,8 @@ include("geom_utils.jl")
 
 # the below code is mostly stuff internal to xKDR
 include("data.jl")
+include("readnl.jl")
+export readnl
 export deltares_url
 
 ############################################################
