@@ -75,6 +75,7 @@ export get_HR_number, get_sentiment_props
 ############################################################
 
 
+
 """
 Contains the State dataframe
 """
@@ -131,7 +132,7 @@ function __init__()
             district_df[][302, :HR_Nmbr] = 3 # Kinnaur - district name not assigned HR_Name
             district_df[][413, :HR_Nmbr] = 3 # North Sikkim - district not assigned HR_Name nor district name # 104
         end
-        hr_df[] = _prepare_merged_geom_dataframe(district_df[], :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name))
+        hr_df[] = _prepare_merged_geom_dataframe(district_df[], :HR_Nmbr, :ST_NM; capture_fields = (:ST_NM, :ST_CD, :HR_Name, :HR_Nmbr))
         state_df[] = _prepare_merged_geom_dataframe(district_df[], :ST_NM; capture_fields = (:ST_CD,))
 
         # finally, patch the loaded dataframes, to match the maps database

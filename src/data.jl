@@ -92,7 +92,6 @@ function state_hr_district_dfs()
     return district_table
 
 end
-
 # example code in R whose functionality this replicates
 # read_the_map = st_read(dsn=dsn_for_maps, layer  = aggregation.layer)
 
