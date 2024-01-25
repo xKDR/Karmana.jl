@@ -83,27 +83,19 @@ function state_hr_district_dfs()
     # get the CRS (if on another DB)
     spatial_ref_df = DBInterface.execute(connection, "SELECT * from spatial_ref_sys") |> DataFrame
     db_crs = spatial_ref_df.SRTEXT[begin] # TODO: use this when converting.
-    # get tables for each admin level
-    state_table = do_geoquery(connection, "states")
-    hr_table = do_geoquery(connection, "homogeneous_regions")
-    district_table = do_geoquery(connection, "districts_2011")
-    # get rivers etc
-    shape_wkb_to_module_geom!(GeometryBasics, state_table)
-    shape_wkb_to_module_geom!(GeometryBasics, hr_table)
+    district_table = do_geoquery(connection,"districts_states_hr" )
     shape_wkb_to_module_geom!(GeometryBasics, district_table)
-    # drop missing values, since we shouldn't have any at this stage.
-    dropmissing!(state_table)
-    dropmissing!(hr_table)
     dropmissing!(district_table)
-    # clean up by closing the connection
     DBInterface.close!(connection)
 
-    return state_table, hr_table, district_table
+    #return state_table, hr_table, district_table, my_table
+    return district_table
 
 end
-
 # example code in R whose functionality this replicates
 # read_the_map = st_read(dsn=dsn_for_maps, layer  = aggregation.layer)
 
 # TODO: figure out why this doesn't work
 # dataset = ArchGDAL.read("MySQL:maps;host=data.mayin.org;user=$(maps_user);password=$(maps_password)")
+# my name is siddhant
+

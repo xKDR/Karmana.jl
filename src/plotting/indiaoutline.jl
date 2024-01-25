@@ -34,7 +34,7 @@ function id_key_for_admin_level(admin_level::Symbol)
     elseif admin_level == :HR
         :hr_nmbr
     elseif admin_level == :District
-        :dt_cen_cd
+        :censuscode
     else
         @error("The admin code `$admin_code` which you passed is invalid.  Valid admin codes are `:State`, `:HR`, and `:District`.")
     end
@@ -261,16 +261,16 @@ function Makie.plot!(plot::IndiaOutline)
     end
     notify(plot.converted[2])
 
-    state_plot    = poly!(plot, plot.State, state_geoms; color = state_colors, colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip)
-    hr_plot       = poly!(plot, hr_geoms; color = hr_colors, colorrange = get(plot, :colorrange, (0, 1)), colormap = plot.colormap, highclip = plot.highclip, lowclip = plot.lowclip, plot.HR...)
-    district_plot = poly!(plot, district_geoms; color = district_colors, colormap = plot.colormap, colorrange = get(plot, :colorrange, (0, 1)), highclip = plot.highclip, lowclip = plot.lowclip, plot.District...)
-    river_plot    = lines!(plot, GeoInterface.convert(GeometryBasics, Karmana.india_rivers[]); inspectable = false, xautolimits = false, yautolimits = false, plot.River...)
+    state_plot    = poly!(plot, plot.State, state_geoms; color = state_colors, colormap = plot.colormap)#, highclip = plot.highclip, lowclip = plot.lowclip)
+    hr_plot       = poly!(plot, hr_geoms; color = hr_colors, colorrange = get(plot, :colorrange, (0, 1)), colormap = plot.colormap)#, highclip = plot.highclip, lowclip = plot.lowclip, plot.HR...)
+    district_plot = poly!(plot, district_geoms; color = district_colors, colormap = plot.colormap, colorrange = get(plot, :colorrange, (0, 1)))#, highclip = plot.highclip, lowclip = plot.lowclip, plot.District...)
+    #river_plot    = lines!(plot, GeoInterface.convert(GeometryBasics, Karmana.india_rivers[]); inspectable = false, xautolimits = false, yautolimits = false, plot.River...)
 
 
     on(Base.Fix1(_set_plot_z, state_plot), plot.State.zlevel; update = true)
     on(Base.Fix1(_set_plot_z, hr_plot), plot.HR.zlevel; update = true)
     on(Base.Fix1(_set_plot_z, district_plot), plot.District.zlevel; update = true)
-    on(Base.Fix1(_set_plot_z, river_plot), plot.River.zlevel; update = true)
+    #on(Base.Fix1(_set_plot_z, river_plot), plot.River.zlevel; update = true)
 
     return plot
 end
